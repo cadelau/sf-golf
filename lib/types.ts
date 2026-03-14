@@ -3,6 +3,7 @@ export type Profile = {
   display_name: string;
   email: string;
   is_admin: boolean;
+  handicap: number | null;
   created_at: string;
 };
 

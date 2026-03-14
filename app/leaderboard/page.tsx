@@ -12,12 +12,13 @@ export default async function LeaderboardPage() {
   const { data: scorecards } = season
     ? await supabase
         .from("scorecards")
-        .select("*, profiles(*), rounds!inner(season_id, date, courses(par))")
+        .select("*, profiles(*), rounds!inner(season_id)")
         .eq("rounds.season_id", season.id)
         .not("total_score", "is", null)
     : { data: [] };
 
   const standings = aggregateStandings(scorecards ?? []);
+  const hasHandicaps = standings.some((s) => s.handicap !== null);
 
   return (
     <div className="space-y-6">
@@ -41,15 +42,27 @@ export default async function LeaderboardPage() {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                   Player
                 </th>
+                {hasHandicaps && (
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">
+                    HCP
+                  </th>
+                )}
                 <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                   Rounds
                 </th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Total
+                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">
+                  Gross Avg
                 </th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Avg
-                </th>
+                {hasHandicaps && (
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Net Avg
+                  </th>
+                )}
+                {!hasHandicaps && (
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Avg
+                  </th>
+                )}
                 <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">
                   Best
                 </th>
@@ -57,10 +70,7 @@ export default async function LeaderboardPage() {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {standings.map((entry, i) => (
-                <tr
-                  key={entry.player_id}
-                  className={i < 3 ? "bg-white" : "bg-white hover:bg-gray-50"}
-                >
+                <tr key={entry.player_id} className="bg-white hover:bg-gray-50">
                   <td className="px-4 py-3.5">
                     <span
                       className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
@@ -86,17 +96,31 @@ export default async function LeaderboardPage() {
                       </span>
                     )}
                   </td>
+                  {hasHandicaps && (
+                    <td className="px-4 py-3.5 text-right text-gray-500 text-sm hidden sm:table-cell">
+                      {entry.handicap !== null ? entry.handicap.toFixed(1) : "—"}
+                    </td>
+                  )}
                   <td className="px-4 py-3.5 text-right text-gray-600 text-sm">
                     {entry.rounds_played}
                   </td>
-                  <td className="px-4 py-3.5 text-right font-semibold text-gray-900">
-                    {entry.total_score}
-                  </td>
-                  <td className="px-4 py-3.5 text-right text-gray-700 font-medium">
-                    {entry.avg_score.toFixed(1)}
-                  </td>
+                  {hasHandicaps && (
+                    <td className="px-4 py-3.5 text-right text-gray-500 text-sm hidden sm:table-cell">
+                      {entry.gross_avg.toFixed(1)}
+                    </td>
+                  )}
+                  {!hasHandicaps && (
+                    <td className="px-4 py-3.5 text-right text-gray-700 font-medium">
+                      {entry.gross_avg.toFixed(1)}
+                    </td>
+                  )}
+                  {hasHandicaps && (
+                    <td className="px-4 py-3.5 text-right font-semibold text-gray-900">
+                      {entry.net_avg !== null ? entry.net_avg.toFixed(1) : entry.gross_avg.toFixed(1)}
+                    </td>
+                  )}
                   <td className="px-4 py-3.5 text-right text-gray-600 text-sm hidden sm:table-cell">
-                    {entry.best_score}
+                    {entry.best_gross}
                   </td>
                 </tr>
               ))}
@@ -106,7 +130,9 @@ export default async function LeaderboardPage() {
       </div>
 
       <p className="text-xs text-gray-400 text-center">
-        Ranked by average score (lower is better) · Minimum 1 round to qualify
+        {hasHandicaps
+          ? "Ranked by net average score (gross avg − handicap) · Lower is better"
+          : "Ranked by average score · Lower is better"}
       </p>
     </div>
   );
@@ -115,13 +141,18 @@ export default async function LeaderboardPage() {
 type ScorecardRow = {
   player_id: string;
   total_score: number | null;
-  profiles: { display_name: string } | null;
+  profiles: { display_name: string; handicap: number | null } | null;
 };
 
 function aggregateStandings(scorecards: ScorecardRow[]) {
   const map = new Map<
     string,
-    { display_name: string; player_id: string; scores: number[] }
+    {
+      display_name: string;
+      player_id: string;
+      handicap: number | null;
+      scores: number[];
+    }
   >();
 
   for (const sc of scorecards) {
@@ -133,19 +164,30 @@ function aggregateStandings(scorecards: ScorecardRow[]) {
       map.set(sc.player_id, {
         display_name: sc.profiles.display_name,
         player_id: sc.player_id,
+        handicap: sc.profiles.handicap,
         scores: [sc.total_score],
       });
     }
   }
 
   return Array.from(map.values())
-    .map((p) => ({
-      player_id: p.player_id,
-      display_name: p.display_name,
-      rounds_played: p.scores.length,
-      total_score: p.scores.reduce((a, b) => a + b, 0),
-      avg_score: p.scores.reduce((a, b) => a + b, 0) / p.scores.length,
-      best_score: Math.min(...p.scores),
-    }))
-    .sort((a, b) => a.avg_score - b.avg_score);
+    .map((p) => {
+      const gross_avg = p.scores.reduce((a, b) => a + b, 0) / p.scores.length;
+      const net_avg =
+        p.handicap !== null ? gross_avg - p.handicap : null;
+      return {
+        player_id: p.player_id,
+        display_name: p.display_name,
+        handicap: p.handicap,
+        rounds_played: p.scores.length,
+        gross_avg,
+        net_avg,
+        best_gross: Math.min(...p.scores),
+      };
+    })
+    .sort((a, b) => {
+      const aSort = a.net_avg ?? a.gross_avg;
+      const bSort = b.net_avg ?? b.gross_avg;
+      return aSort - bSort;
+    });
 }

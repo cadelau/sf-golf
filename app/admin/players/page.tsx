@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import ToggleAdminButton from "./toggle-admin-button";
+import HandicapInput from "./handicap-input";
 
 export default async function PlayersPage() {
   const supabase = await createClient();
@@ -41,6 +42,9 @@ export default async function PlayersPage() {
                 Email
               </th>
               <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                Handicap
+              </th>
+              <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                 Admin
               </th>
             </tr>
@@ -65,6 +69,9 @@ export default async function PlayersPage() {
                 </td>
                 <td className="px-4 py-3.5 text-sm text-gray-500 hidden sm:table-cell">
                   {p.email}
+                </td>
+                <td className="px-4 py-3.5 text-right">
+                  <HandicapInput playerId={p.id} handicap={p.handicap} />
                 </td>
                 <td className="px-4 py-3.5 text-right">
                   <ToggleAdminButton
