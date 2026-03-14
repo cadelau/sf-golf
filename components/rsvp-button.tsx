@@ -4,10 +4,12 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
+type RsvpStatus = "confirmed" | "waitlist" | "declined" | "tentative";
+
 type Props = {
   roundId: string;
   playerId: string;
-  currentStatus: "confirmed" | "waitlist" | "declined" | null;
+  currentStatus: RsvpStatus | null;
   maxPlayers: number;
   confirmedCount: number;
 };
@@ -20,15 +22,14 @@ export default function RsvpButton({
   confirmedCount,
 }: Props) {
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"confirmed" | "waitlist" | "declined" | null>(currentStatus);
+  const [status, setStatus] = useState<RsvpStatus | null>(currentStatus);
   const router = useRouter();
   const supabase = createClient();
 
-  async function handleRsvp(action: "in" | "out") {
+  async function handleRsvp(action: "in" | "tentative" | "out") {
     setLoading(true);
     try {
       if (action === "out") {
-        // Declining
         await supabase
           .from("round_players")
           .upsert(
@@ -52,8 +53,15 @@ export default function RsvpButton({
             .update({ status: "confirmed" })
             .eq("id", waitlist[0].id);
         }
+      } else if (action === "tentative") {
+        await supabase
+          .from("round_players")
+          .upsert(
+            { round_id: roundId, player_id: playerId, status: "tentative" },
+            { onConflict: "round_id,player_id" }
+          );
+        setStatus("tentative");
       } else {
-        // Going in
         const newStatus =
           confirmedCount >= maxPlayers && status !== "confirmed"
             ? "waitlist"
@@ -73,33 +81,49 @@ export default function RsvpButton({
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 flex-wrap">
       <button
         onClick={() => handleRsvp("in")}
         disabled={loading || status === "confirmed"}
-        className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
+        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
           status === "confirmed"
             ? "bg-green-700 text-white cursor-default"
             : "bg-green-700 text-white hover:bg-green-800 disabled:opacity-50"
         }`}
       >
         {status === "confirmed"
-          ? "✓ You're in"
+          ? "✓ I'm In"
           : status === "waitlist"
           ? "Rejoin"
           : confirmedCount >= maxPlayers
           ? "Join Waitlist"
           : "I'm In"}
       </button>
-      {status !== "declined" && (
-        <button
-          onClick={() => handleRsvp("out")}
-          disabled={loading}
-          className="px-5 py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
-        >
-          Can't make it
-        </button>
-      )}
+
+      <button
+        onClick={() => handleRsvp("tentative")}
+        disabled={loading || status === "tentative"}
+        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          status === "tentative"
+            ? "bg-yellow-400 text-yellow-900 cursor-default"
+            : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 disabled:opacity-50"
+        }`}
+      >
+        {status === "tentative" ? "~ Tentative" : "Tentative"}
+      </button>
+
+      <button
+        onClick={() => handleRsvp("out")}
+        disabled={loading || status === "declined"}
+        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+          status === "declined"
+            ? "bg-gray-200 text-gray-500 cursor-default"
+            : "border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+        }`}
+      >
+        {status === "declined" ? "✗ Can't Make It" : "Can't Make It"}
+      </button>
+
       {status === "waitlist" && (
         <span className="text-xs text-yellow-700 font-medium">On waitlist</span>
       )}

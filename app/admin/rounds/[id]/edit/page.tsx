@@ -90,8 +90,10 @@ export default async function EditRoundPage({
                 className={`text-xs rounded-full px-2 py-0.5 font-medium ${
                   rsvp.status === "confirmed"
                     ? "bg-green-100 text-green-800"
-                    : rsvp.status === "waitlist"
+                    : rsvp.status === "tentative"
                     ? "bg-yellow-100 text-yellow-800"
+                    : rsvp.status === "waitlist"
+                    ? "bg-orange-100 text-orange-800"
                     : "bg-gray-100 text-gray-500"
                 }`}
               >

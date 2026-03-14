@@ -94,7 +94,10 @@ export default async function HomePage() {
                     <span className="text-green-700">✓ You&apos;re in!</span>
                   )}
                   {myRsvp.status === "waitlist" && (
-                    <span className="text-yellow-700">⏳ On the waitlist</span>
+                    <span className="text-orange-700">⏳ On the waitlist</span>
+                  )}
+                  {myRsvp.status === "tentative" && (
+                    <span className="text-yellow-700">~ Tentative</span>
                   )}
                   {myRsvp.status === "declined" && (
                     <span className="text-gray-500">✗ You&apos;ve declined</span>

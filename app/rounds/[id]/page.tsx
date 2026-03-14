@@ -34,6 +34,7 @@ export default async function RoundDetailPage({
   const myRsvp = rsvps?.find((r) => r.player_id === user?.id) ?? null;
 
   const confirmed = rsvps?.filter((r) => r.status === "confirmed") ?? [];
+  const tentative = rsvps?.filter((r) => r.status === "tentative") ?? [];
   const waitlist = rsvps?.filter((r) => r.status === "waitlist") ?? [];
 
   // Group tee times
@@ -151,6 +152,27 @@ export default async function RoundDetailPage({
           </div>
         )}
 
+        {tentative.length > 0 && (
+          <div className="mt-5 pt-5 border-t border-gray-100">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              Tentative
+            </p>
+            <div className="space-y-1">
+              {tentative.map((rsvp) => (
+                <div
+                  key={rsvp.id}
+                  className="flex items-center gap-3 py-2 px-3 bg-yellow-50 rounded-lg"
+                >
+                  <span className="text-xs text-yellow-600 font-bold">~</span>
+                  <span className="text-sm text-gray-700">
+                    {rsvp.profiles?.display_name}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {waitlist.length > 0 && (
           <div className="mt-5 pt-5 border-t border-gray-100">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
@@ -160,9 +182,9 @@ export default async function RoundDetailPage({
               {waitlist.map((rsvp, i) => (
                 <div
                   key={rsvp.id}
-                  className="flex items-center gap-3 py-2 px-3 bg-yellow-50 rounded-lg"
+                  className="flex items-center gap-3 py-2 px-3 bg-orange-50 rounded-lg"
                 >
-                  <span className="text-xs text-yellow-600 font-bold w-5 text-center">
+                  <span className="text-xs text-orange-600 font-bold w-5 text-center">
                     #{i + 1}
                   </span>
                   <span className="text-sm text-gray-700">

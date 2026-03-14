@@ -159,6 +159,8 @@ function RoundCard({
                 rsvpStatus === "confirmed"
                   ? "bg-green-100 text-green-800"
                   : rsvpStatus === "waitlist"
+                  ? "bg-orange-100 text-orange-800"
+                  : rsvpStatus === "tentative"
                   ? "bg-yellow-100 text-yellow-800"
                   : "bg-gray-100 text-gray-600"
               }`}
@@ -167,6 +169,8 @@ function RoundCard({
                 ? "✓ In"
                 : rsvpStatus === "waitlist"
                 ? "Waitlist"
+                : rsvpStatus === "tentative"
+                ? "~ Tentative"
                 : "Declined"}
             </span>
           ) : (
