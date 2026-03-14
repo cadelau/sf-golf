@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { formatDate, formatTime } from "@/lib/utils";
+import RsvpButton from "@/components/rsvp-button";
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -75,11 +76,13 @@ export default async function HomePage() {
           {upcomingRound ? (
             <div>
               <p className="text-xl font-bold text-gray-900">
+                {formatDate(upcomingRound.date)}
+              </p>
+              <p className="text-gray-600 font-medium mt-0.5">
                 {upcomingRound.courses?.name}
               </p>
-              <p className="text-gray-600 mt-1">{formatDate(upcomingRound.date)}</p>
-              <p className="text-gray-500 text-sm">
-                First tee: {formatTime(upcomingRound.tee_start_time)}
+              <p className="text-gray-400 text-sm">
+                First tee {formatTime(upcomingRound.tee_start_time)}
               </p>
               <div className="mt-3 flex items-center gap-2 text-sm">
                 <span className="bg-green-100 text-green-800 rounded-full px-2.5 py-0.5 font-medium">
@@ -88,35 +91,21 @@ export default async function HomePage() {
                 <span className="text-gray-400">of {upcomingRound.max_players} spots</span>
               </div>
 
-              {myRsvp ? (
-                <div className="mt-4 text-sm font-medium">
-                  {myRsvp.status === "confirmed" && (
-                    <span className="text-green-700">✓ You&apos;re in!</span>
-                  )}
-                  {myRsvp.status === "waitlist" && (
-                    <span className="text-orange-700">⏳ On the waitlist</span>
-                  )}
-                  {myRsvp.status === "tentative" && (
-                    <span className="text-yellow-700">~ Tentative</span>
-                  )}
-                  {myRsvp.status === "declined" && (
-                    <span className="text-gray-500">✗ You&apos;ve declined</span>
-                  )}
-                </div>
-              ) : (
+              {user && (
                 <div className="mt-4">
-                  <Link
-                    href={`/rounds/${upcomingRound.id}`}
-                    className="inline-block bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-800 transition-colors"
-                  >
-                    RSVP Now →
-                  </Link>
+                  <RsvpButton
+                    roundId={upcomingRound.id}
+                    playerId={user.id}
+                    currentStatus={myRsvp?.status ?? null}
+                    maxPlayers={upcomingRound.max_players}
+                    confirmedCount={confirmedCount ?? 0}
+                  />
                 </div>
               )}
 
               <Link
                 href={`/rounds/${upcomingRound.id}`}
-                className="block mt-3 text-sm text-green-700 hover:text-green-800 font-medium"
+                className="block mt-4 text-sm text-green-700 hover:text-green-800 font-medium"
               >
                 View tee sheet & details →
               </Link>
