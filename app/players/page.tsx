@@ -60,7 +60,7 @@ export default async function RosterPage() {
 
             {/* Handicap */}
             <div className="text-right flex-shrink-0">
-              {p.handicap !== null ? (
+              {p.handicap != null ? (
                 <div>
                   <p className="text-lg font-bold text-gray-900">
                     {p.handicap % 1 === 0
