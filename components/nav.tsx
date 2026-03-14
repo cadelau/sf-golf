@@ -46,7 +46,7 @@ export default function Nav({
           <span className="text-2xl">⛳</span>
           <div>
             <p className="text-[#d4af37] font-bold text-xl leading-tight tracking-tight font-serif italic">
-              SF Golf
+              San Francisco Golf
             </p>
             <p className="text-[#6a8870] text-[10px] uppercase tracking-widest leading-none">
               Weekly Golf{memberCount ? ` · ${memberCount} Members` : ""}

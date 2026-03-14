@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Profile } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "SF Golf",
+  title: "San Francisco Golf",
   description: "Weekly golf league",
 };
 
