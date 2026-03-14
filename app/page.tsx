@@ -81,9 +81,11 @@ export default async function HomePage() {
               <p className="text-[#e8f0ea] font-medium mt-0.5">
                 {upcomingRound.courses?.name ?? "Course TBD"}
               </p>
-              <p className="text-[#6a8870] text-sm">
-                First tee {formatTime(upcomingRound.tee_start_time)}
-              </p>
+              {upcomingRound.tee_start_time && (
+                <p className="text-[#6a8870] text-sm">
+                  First tee {formatTime(upcomingRound.tee_start_time)}
+                </p>
+              )}
               <div className="mt-3 flex items-center gap-2 text-sm">
                 <span className="bg-green-900/40 text-green-300 rounded-full px-2.5 py-0.5 font-medium border border-green-800/50">
                   {confirmedCount ?? 0} confirmed

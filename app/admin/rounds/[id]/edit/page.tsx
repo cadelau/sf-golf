@@ -61,7 +61,7 @@ export default async function EditRoundPage({
             {round.courses?.name ?? "Course TBD"}
           </h1>
           <p className="text-[#9ab8a0] text-sm">
-            {formatDate(round.date)} · {formatTime(round.tee_start_time)}
+            {formatDate(round.date)}{round.tee_start_time ? ` · ${formatTime(round.tee_start_time)}` : " · Tee time TBD"}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">

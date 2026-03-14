@@ -137,7 +137,7 @@ function RoundCard({
             {round.courses?.city ? ` · ${round.courses.city}` : ""}
           </p>
           <p className="text-xs text-[#6a8870] mt-0.5">
-            First tee {formatTime(round.tee_start_time)}
+            {round.tee_start_time ? `First tee ${formatTime(round.tee_start_time)}` : "Tee time TBD"}
           </p>
           {round.notes && (
             <p className="text-xs text-[#9ab8a0] mt-2 italic">{round.notes}</p>

@@ -22,6 +22,7 @@ export default function CreateRoundForm({
   const [newCoursePar, setNewCoursePar] = useState("72");
   const [showNewCourse, setShowNewCourse] = useState(false);
   const [courseTbd, setCourseTbd] = useState(false);
+  const [teeTbd, setTeeTbd] = useState(false);
   const [capacityTbd, setCapacityTbd] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -68,7 +69,7 @@ export default function CreateRoundForm({
           course_id: courseId,
           date: data.get("date") as string,
           max_players: capacityTbd ? null : parseInt(data.get("max_players") as string) || 20,
-          tee_start_time: data.get("tee_start_time") as string,
+          tee_start_time: teeTbd ? null : data.get("tee_start_time") as string,
           tee_interval_minutes: parseInt(data.get("tee_interval_minutes") as string) || 8,
           notes: (data.get("notes") as string) || null,
         })
@@ -173,32 +174,48 @@ export default function CreateRoundForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-[#9ab8a0] mb-1.5">
-            First Tee Time
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="block text-sm font-medium text-[#9ab8a0]">Tee Times</label>
+          <label className="flex items-center gap-1.5 text-xs text-[#9ab8a0] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={teeTbd}
+              onChange={(e) => setTeeTbd(e.target.checked)}
+              className="accent-[#d4af37]"
+            />
+            TBD
           </label>
-          <input
-            type="time"
-            name="tee_start_time"
-            required
-            defaultValue="08:00"
-            className={inputClass}
-          />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-[#9ab8a0] mb-1.5">
-            Interval (minutes)
-          </label>
-          <input
-            type="number"
-            name="tee_interval_minutes"
-            defaultValue={8}
-            min={5}
-            max={20}
-            className={inputClass}
-          />
-        </div>
+        {teeTbd ? (
+          <div className="bg-[#1a3520] border border-[#2d5035] rounded-lg px-3 py-2.5 text-sm text-[#6a8870] italic">
+            Tee times TBD
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <input
+                type="time"
+                name="tee_start_time"
+                required={!teeTbd}
+                defaultValue="08:00"
+                className={inputClass}
+              />
+              <p className="text-xs text-[#6a8870] mt-1">First tee time</p>
+            </div>
+            <div>
+              <input
+                type="number"
+                name="tee_interval_minutes"
+                defaultValue={8}
+                min={5}
+                max={20}
+                className={inputClass}
+              />
+              <p className="text-xs text-[#6a8870] mt-1">Interval (minutes)</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Max Players */}

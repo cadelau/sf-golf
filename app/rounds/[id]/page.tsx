@@ -61,8 +61,9 @@ export default async function RoundDetailPage({
             </h1>
             <p className="text-[#9ab8a0] mt-1">{formatDate(round.date)}</p>
             <p className="text-[#9ab8a0] text-sm">
-              First tee: {formatTime(round.tee_start_time)} ·{" "}
-              {round.tee_interval_minutes} min intervals
+              {round.tee_start_time
+                ? `First tee: ${formatTime(round.tee_start_time)} · ${round.tee_interval_minutes} min intervals`
+                : "Tee time TBD"}
             </p>
             {round.courses?.city && (
               <p className="text-sm text-[#6a8870] mt-0.5">{round.courses.city}</p>
