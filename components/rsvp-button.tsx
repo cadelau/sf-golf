@@ -80,52 +80,59 @@ export default function RsvpButton({
     }
   }
 
+  const isFull = confirmedCount >= maxPlayers && currentStatus !== "confirmed";
+
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      <button
-        onClick={() => handleRsvp("in")}
-        disabled={loading || status === "confirmed"}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-          status === "confirmed"
-            ? "bg-green-700 text-white cursor-default"
-            : "bg-green-700 text-white hover:bg-green-800 disabled:opacity-50"
-        }`}
-      >
-        {status === "confirmed"
-          ? "✓ I'm In"
-          : status === "waitlist"
-          ? "Rejoin"
-          : confirmedCount >= maxPlayers
-          ? "Join Waitlist"
-          : "I'm In"}
-      </button>
+    <div className="space-y-2">
+      <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
+        {/* In */}
+        <button
+          onClick={() => handleRsvp("in")}
+          disabled={loading}
+          className={`px-5 py-2.5 text-sm font-semibold transition-colors border-r border-gray-200 ${
+            status === "confirmed" || status === "waitlist"
+              ? "bg-green-700 text-white"
+              : "bg-white text-gray-500 hover:bg-gray-50"
+          }`}
+        >
+          ✓ {isFull && status !== "confirmed" ? "Waitlist" : "In"}
+        </button>
 
-      <button
-        onClick={() => handleRsvp("tentative")}
-        disabled={loading || status === "tentative"}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-          status === "tentative"
-            ? "bg-yellow-400 text-yellow-900 cursor-default"
-            : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 disabled:opacity-50"
-        }`}
-      >
-        {status === "tentative" ? "~ Tentative" : "Tentative"}
-      </button>
+        {/* Tentative */}
+        <button
+          onClick={() => handleRsvp("tentative")}
+          disabled={loading}
+          className={`px-5 py-2.5 text-sm font-semibold transition-colors border-r border-gray-200 ${
+            status === "tentative"
+              ? "bg-yellow-400 text-yellow-900"
+              : "bg-white text-gray-500 hover:bg-gray-50"
+          }`}
+        >
+          ~ Maybe
+        </button>
 
-      <button
-        onClick={() => handleRsvp("out")}
-        disabled={loading || status === "declined"}
-        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-          status === "declined"
-            ? "bg-gray-200 text-gray-500 cursor-default"
-            : "border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-        }`}
-      >
-        {status === "declined" ? "✗ Can't Make It" : "Can't Make It"}
-      </button>
+        {/* Out */}
+        <button
+          onClick={() => handleRsvp("out")}
+          disabled={loading}
+          className={`px-5 py-2.5 text-sm font-semibold transition-colors ${
+            status === "declined"
+              ? "bg-gray-700 text-white"
+              : "bg-white text-gray-500 hover:bg-gray-50"
+          }`}
+        >
+          ✕ Out
+        </button>
+      </div>
 
+      {/* Status hint */}
       {status === "waitlist" && (
-        <span className="text-xs text-yellow-700 font-medium">On waitlist</span>
+        <p className="text-xs text-orange-600 font-medium">
+          Round is full — you&apos;re on the waitlist
+        </p>
+      )}
+      {!status && (
+        <p className="text-xs text-gray-400">Select an option above</p>
       )}
     </div>
   );
