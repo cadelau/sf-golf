@@ -11,6 +11,7 @@
   --color-secondary: #9ab8a0;
 }
 
+html,
 body {
   background: #1a3520;
   color: #ffffff;

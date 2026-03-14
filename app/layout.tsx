@@ -37,7 +37,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en">
+    <html lang="en" className="bg-[#1a3520]">
       <body className="min-h-screen bg-[#1a3520]">
         {user && <Nav profile={profile} memberCount={memberCount} />}
         <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>
