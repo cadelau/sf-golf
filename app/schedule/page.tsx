@@ -40,6 +40,9 @@ export default async function SchedulePage() {
     countMap.set(c.round_id, (countMap.get(c.round_id) ?? 0) + 1);
   }
 
+  // Build week number map based on full season order (ascending by date)
+  const weekNumberMap = new Map((rounds ?? []).map((r, i) => [r.id, i + 1]));
+
   const today = new Date().toISOString().split("T")[0];
   const upcoming = rounds?.filter((r) => r.date >= today) ?? [];
   const past = rounds?.filter((r) => r.date < today) ?? [];
@@ -67,6 +70,7 @@ export default async function SchedulePage() {
                 <RoundCard
                   key={round.id}
                   round={round}
+                  weekNumber={weekNumberMap.get(round.id) ?? 0}
                   rsvpStatus={rsvp ?? null}
                   confirmedCount={confirmed}
                   isPast={false}
@@ -90,6 +94,7 @@ export default async function SchedulePage() {
                 <RoundCard
                   key={round.id}
                   round={round}
+                  weekNumber={weekNumberMap.get(round.id) ?? 0}
                   rsvpStatus={null}
                   confirmedCount={confirmed}
                   isPast={true}
@@ -105,6 +110,7 @@ export default async function SchedulePage() {
 
 function RoundCard({
   round,
+  weekNumber,
   rsvpStatus,
   confirmedCount,
   isPast,
@@ -118,6 +124,7 @@ function RoundCard({
     notes: string | null;
     courses: { name: string; city: string; par: number } | null;
   };
+  weekNumber: number;
   rsvpStatus: string | null;
   confirmedCount: number;
   isPast: boolean;
@@ -129,6 +136,9 @@ function RoundCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-[#d4af37] uppercase tracking-wider mb-0.5">
+            Week {weekNumber}
+          </p>
           <p className="text-lg font-bold text-white">
             {formatDate(round.date)}
           </p>

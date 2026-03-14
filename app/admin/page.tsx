@@ -80,13 +80,14 @@ export default async function AdminPage() {
           <p className="text-[#6a8870] text-sm">No rounds yet. Create your first one!</p>
         ) : (
           <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-            {rounds?.map((round) => (
+            {rounds?.map((round, i) => (
               <div
                 key={round.id}
                 className="flex items-center justify-between py-2.5 border-b border-[#2d5035] last:border-0"
               >
                 <div>
                   <p className="font-medium text-white text-sm">
+                    <span className="text-[#d4af37] mr-1.5">W{i + 1}</span>
                     {round.courses?.name ?? "Course TBD"}
                   </p>
                   <p className="text-xs text-[#6a8870]">
