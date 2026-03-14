@@ -10,7 +10,7 @@ type Props = {
   roundId: string;
   playerId: string;
   currentStatus: RsvpStatus | null;
-  maxPlayers: number;
+  maxPlayers: number | null;
   confirmedCount: number;
 };
 
@@ -61,10 +61,9 @@ export default function RsvpButton({
           );
         setStatus("tentative");
       } else {
-        const newStatus =
-          confirmedCount >= maxPlayers && currentStatus !== "confirmed"
-            ? "waitlist"
-            : "confirmed";
+        // No cap when maxPlayers is null — always confirm
+        const isFull = maxPlayers !== null && confirmedCount >= maxPlayers && currentStatus !== "confirmed";
+        const newStatus = isFull ? "waitlist" : "confirmed";
         await supabase
           .from("round_players")
           .upsert(
@@ -79,7 +78,7 @@ export default function RsvpButton({
     }
   }
 
-  const isFull = confirmedCount >= maxPlayers && currentStatus !== "confirmed";
+  const isFull = maxPlayers !== null && confirmedCount >= maxPlayers && currentStatus !== "confirmed";
 
   const buttons = [
     {

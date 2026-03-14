@@ -133,7 +133,7 @@ function RoundCard({
             {formatDate(round.date)}
           </p>
           <p className="text-sm font-medium text-[#9ab8a0] mt-0.5">
-            {round.courses?.name ?? "Unknown Course"}
+            {round.courses?.name ?? "Course TBD"}
             {round.courses?.city ? ` · ${round.courses.city}` : ""}
           </p>
           <p className="text-xs text-[#6a8870] mt-0.5">
@@ -180,7 +180,7 @@ function RoundCard({
             </span>
           )}
           <span className="text-xs text-[#6a8870]">
-            {confirmedCount}/{round.max_players} confirmed
+            {confirmedCount}{round.max_players ? `/${round.max_players}` : ""} confirmed
           </span>
         </div>
       </div>

@@ -58,7 +58,7 @@ export default async function EditRoundPage({
             <span>Edit Round</span>
           </div>
           <h1 className="text-2xl font-bold text-white">
-            {round.courses?.name}
+            {round.courses?.name ?? "Course TBD"}
           </h1>
           <p className="text-[#9ab8a0] text-sm">
             {formatDate(round.date)} · {formatTime(round.tee_start_time)}
@@ -78,7 +78,7 @@ export default async function EditRoundPage({
       {/* RSVP Summary */}
       <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
         <h2 className="font-semibold text-white mb-4">
-          RSVPs — {confirmed.length}/{round.max_players} confirmed
+          RSVPs — {confirmed.length}{round.max_players ? `/${round.max_players}` : ""} confirmed
         </h2>
         <div className="space-y-1">
           {rsvps?.map((rsvp) => (

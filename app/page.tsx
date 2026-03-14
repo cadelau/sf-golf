@@ -79,7 +79,7 @@ export default async function HomePage() {
                 {formatDate(upcomingRound.date)}
               </p>
               <p className="text-[#e8f0ea] font-medium mt-0.5">
-                {upcomingRound.courses?.name}
+                {upcomingRound.courses?.name ?? "Course TBD"}
               </p>
               <p className="text-[#6a8870] text-sm">
                 First tee {formatTime(upcomingRound.tee_start_time)}
@@ -88,7 +88,9 @@ export default async function HomePage() {
                 <span className="bg-green-900/40 text-green-300 rounded-full px-2.5 py-0.5 font-medium border border-green-800/50">
                   {confirmedCount ?? 0} confirmed
                 </span>
-                <span className="text-[#6a8870]">of {upcomingRound.max_players} spots</span>
+                {upcomingRound.max_players && (
+                  <span className="text-[#6a8870]">of {upcomingRound.max_players} spots</span>
+                )}
               </div>
 
               {user && (

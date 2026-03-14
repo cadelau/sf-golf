@@ -21,6 +21,8 @@ export default function CreateRoundForm({
   const [newCourseCity, setNewCourseCity] = useState("");
   const [newCoursePar, setNewCoursePar] = useState("72");
   const [showNewCourse, setShowNewCourse] = useState(false);
+  const [courseTbd, setCourseTbd] = useState(false);
+  const [capacityTbd, setCapacityTbd] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -31,27 +33,32 @@ export default function CreateRoundForm({
     const data = new FormData(form);
 
     try {
-      let courseId = data.get("course_id") as string;
+      let courseId: string | null = null;
 
-      // Create new course if needed
-      if (courseId === "new") {
-        if (!newCourseName.trim()) {
-          setError("Please enter a course name.");
-          setLoading(false);
-          return;
+      if (!courseTbd) {
+        const selectedCourse = data.get("course_id") as string;
+
+        if (selectedCourse === "new") {
+          if (!newCourseName.trim()) {
+            setError("Please enter a course name.");
+            setLoading(false);
+            return;
+          }
+          const { data: course, error: courseError } = await supabase
+            .from("courses")
+            .insert({
+              name: newCourseName.trim(),
+              city: newCourseCity.trim(),
+              par: parseInt(newCoursePar) || 72,
+            })
+            .select()
+            .single();
+
+          if (courseError) throw courseError;
+          courseId = course.id;
+        } else {
+          courseId = selectedCourse || null;
         }
-        const { data: course, error: courseError } = await supabase
-          .from("courses")
-          .insert({
-            name: newCourseName.trim(),
-            city: newCourseCity.trim(),
-            par: parseInt(newCoursePar) || 72,
-          })
-          .select()
-          .single();
-
-        if (courseError) throw courseError;
-        courseId = course.id;
       }
 
       const { data: round, error: roundError } = await supabase
@@ -60,7 +67,7 @@ export default function CreateRoundForm({
           season_id: seasonId,
           course_id: courseId,
           date: data.get("date") as string,
-          max_players: parseInt(data.get("max_players") as string) || 20,
+          max_players: capacityTbd ? null : parseInt(data.get("max_players") as string) || 20,
           tee_start_time: data.get("tee_start_time") as string,
           tee_interval_minutes: parseInt(data.get("tee_interval_minutes") as string) || 8,
           notes: (data.get("notes") as string) || null,
@@ -86,27 +93,44 @@ export default function CreateRoundForm({
         </div>
       )}
 
+      {/* Course */}
       <div>
-        <label className="block text-sm font-medium text-[#9ab8a0] mb-1.5">
-          Course
-        </label>
-        <select
-          name="course_id"
-          required
-          onChange={(e) => setShowNewCourse(e.target.value === "new")}
-          className={inputClass}
-        >
-          <option value="">Select a course...</option>
-          {courses.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name} {c.city ? `(${c.city})` : ""}
-            </option>
-          ))}
-          <option value="new">+ Add new course</option>
-        </select>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="block text-sm font-medium text-[#9ab8a0]">Course</label>
+          <label className="flex items-center gap-1.5 text-xs text-[#9ab8a0] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={courseTbd}
+              onChange={(e) => { setCourseTbd(e.target.checked); setShowNewCourse(false); }}
+              className="accent-[#d4af37]"
+            />
+            Course TBD
+          </label>
+        </div>
+        {!courseTbd && (
+          <select
+            name="course_id"
+            required={!courseTbd}
+            onChange={(e) => setShowNewCourse(e.target.value === "new")}
+            className={inputClass}
+          >
+            <option value="">Select a course...</option>
+            {courses.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name} {c.city ? `(${c.city})` : ""}
+              </option>
+            ))}
+            <option value="new">+ Add new course</option>
+          </select>
+        )}
+        {courseTbd && (
+          <div className="bg-[#1a3520] border border-[#2d5035] rounded-lg px-3 py-2.5 text-sm text-[#6a8870] italic">
+            Course TBD — players can still RSVP
+          </div>
+        )}
       </div>
 
-      {showNewCourse && (
+      {showNewCourse && !courseTbd && (
         <div className="bg-[#1a3520] rounded-lg p-4 space-y-3 border border-[#2d5035]">
           <p className="text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
             New Course
@@ -177,18 +201,34 @@ export default function CreateRoundForm({
         </div>
       </div>
 
+      {/* Max Players */}
       <div>
-        <label className="block text-sm font-medium text-[#9ab8a0] mb-1.5">
-          Max Players
-        </label>
-        <input
-          type="number"
-          name="max_players"
-          defaultValue={20}
-          min={1}
-          max={100}
-          className={inputClass}
-        />
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="block text-sm font-medium text-[#9ab8a0]">Max Players</label>
+          <label className="flex items-center gap-1.5 text-xs text-[#9ab8a0] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={capacityTbd}
+              onChange={(e) => setCapacityTbd(e.target.checked)}
+              className="accent-[#d4af37]"
+            />
+            No limit yet
+          </label>
+        </div>
+        {!capacityTbd ? (
+          <input
+            type="number"
+            name="max_players"
+            defaultValue={20}
+            min={1}
+            max={100}
+            className={inputClass}
+          />
+        ) : (
+          <div className="bg-[#1a3520] border border-[#2d5035] rounded-lg px-3 py-2.5 text-sm text-[#6a8870] italic">
+            Unlimited — everyone who RSVPs gets confirmed
+          </div>
+        )}
       </div>
 
       <div>

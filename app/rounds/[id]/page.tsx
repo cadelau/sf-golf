@@ -57,7 +57,7 @@ export default async function RoundDetailPage({
               {round.seasons?.name}
             </p>
             <h1 className="text-2xl font-bold text-white">
-              {round.courses?.name}
+              {round.courses?.name ?? "Course TBD"}
             </h1>
             <p className="text-[#9ab8a0] mt-1">{formatDate(round.date)}</p>
             <p className="text-[#9ab8a0] text-sm">
@@ -75,7 +75,7 @@ export default async function RoundDetailPage({
           </div>
           <div className="flex flex-col items-end gap-2">
             <span className="text-sm bg-green-900/40 text-green-300 border border-green-800/50 rounded-full px-3 py-1 font-medium">
-              {confirmed.length} / {round.max_players} confirmed
+              {confirmed.length}{round.max_players ? ` / ${round.max_players}` : ""} confirmed
             </span>
             {round.is_finalized && (
               <span className="text-xs bg-[#1a3520] text-[#9ab8a0] border border-[#2d5035] rounded-full px-2.5 py-0.5">
