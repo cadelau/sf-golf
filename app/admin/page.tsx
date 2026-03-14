@@ -79,7 +79,7 @@ export default async function AdminPage() {
         {(rounds?.length ?? 0) === 0 ? (
           <p className="text-[#6a8870] text-sm">No rounds yet. Create your first one!</p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
             {rounds?.map((round) => (
               <div
                 key={round.id}
