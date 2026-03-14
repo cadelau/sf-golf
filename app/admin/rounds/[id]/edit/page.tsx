@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatDate, formatTime } from "@/lib/utils";
 import TeeTimeAssigner from "./tee-time-assigner";
 import ScoreEntryForm from "./score-entry-form";
+import DeleteRoundButton from "./delete-round-button";
 
 export default async function EditRoundPage({
   params,
@@ -63,13 +64,14 @@ export default async function EditRoundPage({
             {formatDate(round.date)} · {formatTime(round.tee_start_time)}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Link
             href={`/rounds/${round.id}`}
             className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
           >
             View Public Page
           </Link>
+          <DeleteRoundButton roundId={round.id} />
         </div>
       </div>
 
