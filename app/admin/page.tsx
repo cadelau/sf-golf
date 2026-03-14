@@ -41,7 +41,7 @@ export default async function AdminPage() {
     .from("rounds")
     .select("*, courses(*)")
     .eq("season_id", season?.id ?? "")
-    .order("date", { ascending: false });
+    .order("date", { ascending: true });
 
   return (
     <div className="space-y-6">
