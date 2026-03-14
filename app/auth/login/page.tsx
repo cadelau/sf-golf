@@ -18,17 +18,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-2xl shadow-lg p-10 w-full max-w-sm text-center">
+    <div className="min-h-screen flex items-center justify-center bg-[#1a3520]">
+      <div className="bg-[#243d2a] rounded-2xl border border-[#2d5035] p-10 w-full max-w-sm text-center">
         <div className="text-5xl mb-4">⛳</div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">SF Golf League</h1>
-        <p className="text-gray-500 text-sm mb-8">
+        <h1 className="text-2xl font-bold text-[#d4af37] font-serif italic mb-1">The League</h1>
+        <p className="text-[#9ab8a0] text-sm mb-8">
           Sign in to view the schedule, standings, and scorecards.
         </p>
         <button
           onClick={signInWithGoogle}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          className="w-full flex items-center justify-center gap-3 bg-white border border-white/20 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path

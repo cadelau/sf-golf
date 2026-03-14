@@ -20,17 +20,17 @@ export default function DeleteRoundButton({ roundId }: { roundId: string }) {
   if (confirming) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-600">Are you sure?</span>
+        <span className="text-sm text-[#9ab8a0]">Are you sure?</span>
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+          className="px-3 py-2 bg-red-700 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
         >
           {deleting ? "Deleting..." : "Yes, delete"}
         </button>
         <button
           onClick={() => setConfirming(false)}
-          className="px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          className="px-3 py-2 border border-[#2d5035] rounded-lg text-sm font-medium text-[#9ab8a0] hover:bg-[#2a4830] transition-colors"
         >
           Cancel
         </button>
@@ -41,7 +41,7 @@ export default function DeleteRoundButton({ roundId }: { roundId: string }) {
   return (
     <button
       onClick={() => setConfirming(true)}
-      className="px-4 py-2 border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
+      className="px-4 py-2 border border-red-800/50 text-red-400 rounded-lg text-sm font-medium hover:bg-red-900/20 transition-colors"
     >
       Delete Round
     </button>

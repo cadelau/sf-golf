@@ -32,7 +32,7 @@ export default function ToggleAdminButton({
 
   if (isSelf) {
     return (
-      <span className="text-xs text-gray-400">
+      <span className="text-xs text-[#6a8870]">
         {admin ? "Admin (you)" : "—"}
       </span>
     );
@@ -42,10 +42,10 @@ export default function ToggleAdminButton({
     <button
       onClick={toggle}
       disabled={loading}
-      className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors ${
+      className={`text-xs font-medium px-2.5 py-1 rounded-full transition-colors border ${
         admin
-          ? "bg-green-100 text-green-800 hover:bg-red-100 hover:text-red-800"
-          : "bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-800"
+          ? "bg-green-900/40 text-green-300 border-green-800/50 hover:bg-red-900/40 hover:text-red-300 hover:border-red-800/50"
+          : "bg-[#1a3520] text-[#6a8870] border-[#2d5035] hover:bg-green-900/40 hover:text-green-300 hover:border-green-800/50"
       }`}
     >
       {loading ? "..." : admin ? "Admin ✕" : "Make admin"}

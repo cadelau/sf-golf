@@ -23,103 +23,103 @@ export default async function LeaderboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Season Standings</h1>
-        <p className="text-gray-500 text-sm mt-1">{season?.name}</p>
+        <h1 className="text-2xl font-bold text-white">Season Standings</h1>
+        <p className="text-[#9ab8a0] text-sm mt-1">{season?.name}</p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] overflow-hidden">
         {standings.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">
+          <div className="p-8 text-center text-[#6a8870]">
             No scores recorded yet this season.
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
+            <thead className="bg-[#1a3520] border-b border-[#2d5035]">
               <tr>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide w-10">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-10">
                   #
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
                   Player
                 </th>
                 {hasHandicaps && (
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
                     HCP
                   </th>
                 )}
-                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
                   Rounds
                 </th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">
+                <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
                   Gross Avg
                 </th>
                 {hasHandicaps && (
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
                     Net Avg
                   </th>
                 )}
                 {!hasHandicaps && (
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
                     Avg
                   </th>
                 )}
-                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">
+                <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
                   Best
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-[#2d5035]">
               {standings.map((entry, i) => (
-                <tr key={entry.player_id} className="bg-white hover:bg-gray-50">
+                <tr key={entry.player_id} className="hover:bg-[#2a4830] transition-colors">
                   <td className="px-4 py-3.5">
                     <span
                       className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                         i === 0
-                          ? "bg-yellow-400 text-yellow-900"
+                          ? "bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40"
                           : i === 1
-                          ? "bg-gray-300 text-gray-700"
+                          ? "bg-[#9ab8a0]/20 text-[#9ab8a0] border border-[#9ab8a0]/40"
                           : i === 2
-                          ? "bg-amber-600 text-white"
-                          : "text-gray-400"
+                          ? "bg-amber-900/40 text-amber-400 border border-amber-700/40"
+                          : "text-[#6a8870]"
                       }`}
                     >
                       {i + 1}
                     </span>
                   </td>
                   <td className="px-4 py-3.5">
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-white">
                       {entry.display_name}
                     </span>
                     {i === 0 && (
-                      <span className="ml-2 text-xs text-yellow-600 font-medium">
+                      <span className="ml-2 text-xs text-[#d4af37] font-medium">
                         Leader
                       </span>
                     )}
                   </td>
                   {hasHandicaps && (
-                    <td className="px-4 py-3.5 text-right text-gray-500 text-sm hidden sm:table-cell">
+                    <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
                       {entry.handicap !== null ? entry.handicap.toFixed(1) : "—"}
                     </td>
                   )}
-                  <td className="px-4 py-3.5 text-right text-gray-600 text-sm">
+                  <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm">
                     {entry.rounds_played}
                   </td>
                   {hasHandicaps && (
-                    <td className="px-4 py-3.5 text-right text-gray-500 text-sm hidden sm:table-cell">
+                    <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
                       {entry.gross_avg.toFixed(1)}
                     </td>
                   )}
                   {!hasHandicaps && (
-                    <td className="px-4 py-3.5 text-right text-gray-700 font-medium">
+                    <td className="px-4 py-3.5 text-right text-white font-medium">
                       {entry.gross_avg.toFixed(1)}
                     </td>
                   )}
                   {hasHandicaps && (
-                    <td className="px-4 py-3.5 text-right font-semibold text-gray-900">
+                    <td className="px-4 py-3.5 text-right font-semibold text-white">
                       {entry.net_avg !== null ? entry.net_avg.toFixed(1) : entry.gross_avg.toFixed(1)}
                     </td>
                   )}
-                  <td className="px-4 py-3.5 text-right text-gray-600 text-sm hidden sm:table-cell">
+                  <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
                     {entry.best_gross}
                   </td>
                 </tr>
@@ -129,7 +129,7 @@ export default async function LeaderboardPage() {
         )}
       </div>
 
-      <p className="text-xs text-gray-400 text-center">
+      <p className="text-xs text-[#6a8870] text-center">
         {hasHandicaps
           ? "Ranked by net average score (gross avg − handicap) · Lower is better"
           : "Ranked by average score · Lower is better"}

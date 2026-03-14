@@ -50,35 +50,35 @@ export default async function RoundDetailPage({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+      <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <p className="text-xs uppercase tracking-wider text-gray-400 mb-1">
+            <p className="text-xs uppercase tracking-wider text-[#6a8870] mb-1">
               {round.seasons?.name}
             </p>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-white">
               {round.courses?.name}
             </h1>
-            <p className="text-gray-500 mt-1">{formatDate(round.date)}</p>
-            <p className="text-gray-500 text-sm">
+            <p className="text-[#9ab8a0] mt-1">{formatDate(round.date)}</p>
+            <p className="text-[#9ab8a0] text-sm">
               First tee: {formatTime(round.tee_start_time)} ·{" "}
               {round.tee_interval_minutes} min intervals
             </p>
             {round.courses?.city && (
-              <p className="text-sm text-gray-400 mt-0.5">{round.courses.city}</p>
+              <p className="text-sm text-[#6a8870] mt-0.5">{round.courses.city}</p>
             )}
             {round.notes && (
-              <p className="text-sm text-gray-600 mt-3 italic border-l-2 border-green-300 pl-3">
+              <p className="text-sm text-[#9ab8a0] mt-3 italic border-l-2 border-[#d4af37]/40 pl-3">
                 {round.notes}
               </p>
             )}
           </div>
           <div className="flex flex-col items-end gap-2">
-            <span className="text-sm bg-green-100 text-green-800 rounded-full px-3 py-1 font-medium">
+            <span className="text-sm bg-green-900/40 text-green-300 border border-green-800/50 rounded-full px-3 py-1 font-medium">
               {confirmed.length} / {round.max_players} confirmed
             </span>
             {round.is_finalized && (
-              <span className="text-xs bg-gray-100 text-gray-600 rounded-full px-2.5 py-0.5">
+              <span className="text-xs bg-[#1a3520] text-[#9ab8a0] border border-[#2d5035] rounded-full px-2.5 py-0.5">
                 Results finalized
               </span>
             )}
@@ -87,8 +87,8 @@ export default async function RoundDetailPage({
 
         {/* RSVP section */}
         {!round.is_finalized && user && (
-          <div className="mt-5 pt-5 border-t border-gray-100">
-            <p className="text-sm font-medium text-gray-700 mb-3">
+          <div className="mt-5 pt-5 border-t border-[#2d5035]">
+            <p className="text-sm font-medium text-[#9ab8a0] mb-3">
               {myRsvp ? "Update your RSVP:" : "Are you playing?"}
             </p>
             <RsvpButton
@@ -103,15 +103,15 @@ export default async function RoundDetailPage({
       </div>
 
       {/* Tee Sheet */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-900 mb-4">Tee Sheet</h2>
+      <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
+        <h2 className="font-semibold text-white mb-4">Tee Sheet</h2>
         {confirmed.length === 0 ? (
-          <p className="text-gray-400 text-sm">No confirmed players yet.</p>
+          <p className="text-[#6a8870] text-sm">No confirmed players yet.</p>
         ) : groups.length > 0 ? (
           <div className="space-y-4">
             {groups.map((group) => (
               <div key={group.teeTime ?? "unassigned"}>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                <p className="text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide mb-2">
                   {group.teeTime
                     ? `${formatTime(group.teeTime)} — Group ${group.groupNumber}`
                     : "Unassigned"}
@@ -120,12 +120,12 @@ export default async function RoundDetailPage({
                   {group.players.map((rsvp) => (
                     <div
                       key={rsvp.id}
-                      className="flex items-center gap-3 py-2 px-3 bg-gray-50 rounded-lg"
+                      className="flex items-center gap-3 py-2 px-3 bg-[#1a3520] rounded-lg border border-[#2d5035]"
                     >
-                      <div className="w-7 h-7 rounded-full bg-green-700 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/40 text-[#d4af37] flex items-center justify-center text-xs font-bold flex-shrink-0">
                         {rsvp.profiles?.display_name?.[0]?.toUpperCase() ?? "?"}
                       </div>
-                      <span className="text-sm font-medium text-gray-800">
+                      <span className="text-sm font-medium text-white">
                         {rsvp.profiles?.display_name}
                       </span>
                     </div>
@@ -139,12 +139,12 @@ export default async function RoundDetailPage({
             {confirmed.map((rsvp) => (
               <div
                 key={rsvp.id}
-                className="flex items-center gap-3 py-2 px-3 bg-gray-50 rounded-lg"
+                className="flex items-center gap-3 py-2 px-3 bg-[#1a3520] rounded-lg border border-[#2d5035]"
               >
-                <div className="w-7 h-7 rounded-full bg-green-700 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                <div className="w-7 h-7 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/40 text-[#d4af37] flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {rsvp.profiles?.display_name?.[0]?.toUpperCase() ?? "?"}
                 </div>
-                <span className="text-sm font-medium text-gray-800">
+                <span className="text-sm font-medium text-white">
                   {rsvp.profiles?.display_name}
                 </span>
               </div>
@@ -153,18 +153,18 @@ export default async function RoundDetailPage({
         )}
 
         {tentative.length > 0 && (
-          <div className="mt-5 pt-5 border-t border-gray-100">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <div className="mt-5 pt-5 border-t border-[#2d5035]">
+            <p className="text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide mb-2">
               Tentative
             </p>
             <div className="space-y-1">
               {tentative.map((rsvp) => (
                 <div
                   key={rsvp.id}
-                  className="flex items-center gap-3 py-2 px-3 bg-yellow-50 rounded-lg"
+                  className="flex items-center gap-3 py-2 px-3 bg-yellow-900/20 border border-yellow-800/30 rounded-lg"
                 >
-                  <span className="text-xs text-yellow-600 font-bold">~</span>
-                  <span className="text-sm text-gray-700">
+                  <span className="text-xs text-yellow-400 font-bold">~</span>
+                  <span className="text-sm text-[#e8f0ea]">
                     {rsvp.profiles?.display_name}
                   </span>
                 </div>
@@ -174,20 +174,20 @@ export default async function RoundDetailPage({
         )}
 
         {waitlist.length > 0 && (
-          <div className="mt-5 pt-5 border-t border-gray-100">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <div className="mt-5 pt-5 border-t border-[#2d5035]">
+            <p className="text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide mb-2">
               Waitlist
             </p>
             <div className="space-y-1">
               {waitlist.map((rsvp, i) => (
                 <div
                   key={rsvp.id}
-                  className="flex items-center gap-3 py-2 px-3 bg-orange-50 rounded-lg"
+                  className="flex items-center gap-3 py-2 px-3 bg-orange-900/20 border border-orange-800/30 rounded-lg"
                 >
-                  <span className="text-xs text-orange-600 font-bold w-5 text-center">
+                  <span className="text-xs text-orange-400 font-bold w-5 text-center">
                     #{i + 1}
                   </span>
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-[#e8f0ea]">
                     {rsvp.profiles?.display_name}
                   </span>
                 </div>
@@ -199,34 +199,34 @@ export default async function RoundDetailPage({
 
       {/* Scorecards */}
       {(scorecards?.length ?? 0) > 0 && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Results</h2>
+        <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
+          <h2 className="font-semibold text-white mb-4">Results</h2>
           <div className="space-y-4">
             {scorecards?.map((sc, i) => (
-              <div key={sc.id} className="border border-gray-100 rounded-lg overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 bg-gray-50">
+              <div key={sc.id} className="border border-[#2d5035] rounded-lg overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 bg-[#1a3520]">
                   <div className="flex items-center gap-3">
                     <span
                       className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                         i === 0
-                          ? "bg-yellow-400 text-yellow-900"
+                          ? "bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40"
                           : i === 1
-                          ? "bg-gray-300 text-gray-700"
+                          ? "bg-[#9ab8a0]/20 text-[#9ab8a0] border border-[#9ab8a0]/40"
                           : i === 2
-                          ? "bg-amber-600 text-white"
-                          : "bg-gray-100 text-gray-500"
+                          ? "bg-amber-900/40 text-amber-400 border border-amber-700/40"
+                          : "bg-[#243d2a] text-[#6a8870] border border-[#2d5035]"
                       }`}
                     >
                       {i + 1}
                     </span>
-                    <span className="font-semibold text-gray-900">
+                    <span className="font-semibold text-white">
                       {sc.profiles?.display_name}
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="font-bold text-gray-900 text-lg">{sc.total_score}</span>
+                    <span className="font-bold text-white text-lg">{sc.total_score}</span>
                     {round.courses?.par && (
-                      <span className="text-sm text-gray-500 ml-1">
+                      <span className="text-sm text-[#9ab8a0] ml-1">
                         ({scoreToPar(sc.total_score, round.courses.par)})
                       </span>
                     )}
@@ -237,7 +237,7 @@ export default async function RoundDetailPage({
                   <div className="px-4 py-3 overflow-x-auto">
                     <table className="text-xs w-full min-w-max">
                       <thead>
-                        <tr className="text-gray-400">
+                        <tr className="text-[#6a8870]">
                           <td className="pr-2 font-medium">Hole</td>
                           {[...sc.hole_scores]
                             .sort((a: HoleScore, b: HoleScore) => a.hole_number - b.hole_number)
@@ -248,7 +248,7 @@ export default async function RoundDetailPage({
                             ))}
                           <td className="text-center px-1 font-medium">Tot</td>
                         </tr>
-                        <tr className="text-gray-400">
+                        <tr className="text-[#6a8870]">
                           <td className="pr-2">Par</td>
                           {[...sc.hole_scores]
                             .sort((a: HoleScore, b: HoleScore) => a.hole_number - b.hole_number)
@@ -264,7 +264,7 @@ export default async function RoundDetailPage({
                       </thead>
                       <tbody>
                         <tr>
-                          <td className="pr-2 font-medium text-gray-600">Score</td>
+                          <td className="pr-2 font-medium text-[#9ab8a0]">Score</td>
                           {[...sc.hole_scores]
                             .sort((a: HoleScore, b: HoleScore) => a.hole_number - b.hole_number)
                             .map((h: HoleScore) => (
@@ -272,18 +272,18 @@ export default async function RoundDetailPage({
                                 key={h.hole_number}
                                 className={`text-center px-1 font-semibold rounded ${
                                   h.score < h.par
-                                    ? "text-red-600"
+                                    ? "text-red-400"
                                     : h.score === h.par
-                                    ? "text-gray-700"
+                                    ? "text-[#9ab8a0]"
                                     : h.score === h.par + 1
-                                    ? "text-gray-800"
-                                    : "text-blue-700"
+                                    ? "text-[#e8f0ea]"
+                                    : "text-blue-400"
                                 }`}
                               >
                                 {h.score}
                               </td>
                             ))}
-                          <td className="text-center px-1 font-bold text-gray-900">
+                          <td className="text-center px-1 font-bold text-white">
                             {sc.total_score}
                           </td>
                         </tr>

@@ -30,8 +30,8 @@ export default async function NewRoundPage() {
   return (
     <div className="space-y-6 max-w-xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">New Round</h1>
-        <p className="text-gray-500 text-sm mt-1">{season?.name}</p>
+        <h1 className="text-2xl font-bold text-white">New Round</h1>
+        <p className="text-[#9ab8a0] text-sm mt-1">{season?.name}</p>
       </div>
       <CreateRoundForm seasonId={season?.id ?? ""} courses={courses ?? []} />
     </div>

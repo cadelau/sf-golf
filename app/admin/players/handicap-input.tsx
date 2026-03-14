@@ -48,10 +48,10 @@ export default function HandicapInput({
         min={0}
         max={54}
         step={0.1}
-        className="w-16 text-right border border-gray-200 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+        className="w-16 text-right bg-[#1a3520] border border-[#2d5035] text-white rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50 placeholder-[#4a6850]"
       />
-      {saving && <span className="text-xs text-gray-400">...</span>}
-      {saved && <span className="text-xs text-green-600">✓</span>}
+      {saving && <span className="text-xs text-[#6a8870]">...</span>}
+      {saved && <span className="text-xs text-[#d4af37]">✓</span>}
     </div>
   );
 }

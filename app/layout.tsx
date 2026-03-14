@@ -5,8 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Profile } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "SF Golf League",
-  description: "Weekly golf league for SF friends",
+  title: "The League",
+  description: "Weekly golf league",
 };
 
 export default async function RootLayout({
@@ -20,6 +20,8 @@ export default async function RootLayout({
   } = await supabase.auth.getUser();
 
   let profile: Profile | null = null;
+  let memberCount = 0;
+
   if (user) {
     const { data } = await supabase
       .from("profiles")
@@ -27,12 +29,17 @@ export default async function RootLayout({
       .eq("id", user.id)
       .single();
     profile = data;
+
+    const { count } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true });
+    memberCount = count ?? 0;
   }
 
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gray-50">
-        {user && <Nav profile={profile} />}
+      <body className="min-h-screen bg-[#1a3520]">
+        {user && <Nav profile={profile} memberCount={memberCount} />}
         <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>
       </body>
     </html>

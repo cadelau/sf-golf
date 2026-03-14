@@ -50,24 +50,24 @@ export default async function EditRoundPage({
     <div className="space-y-6 max-w-3xl">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
-            <Link href="/admin" className="hover:text-gray-700">
+          <div className="flex items-center gap-2 text-sm text-[#9ab8a0] mb-1">
+            <Link href="/admin" className="hover:text-white transition-colors">
               Admin
             </Link>
             <span>›</span>
             <span>Edit Round</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-white">
             {round.courses?.name}
           </h1>
-          <p className="text-gray-500 text-sm">
+          <p className="text-[#9ab8a0] text-sm">
             {formatDate(round.date)} · {formatTime(round.tee_start_time)}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Link
             href={`/rounds/${round.id}`}
-            className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 border border-[#2d5035] rounded-lg text-sm font-medium text-[#9ab8a0] hover:bg-[#2a4830] hover:text-white transition-colors"
           >
             View Public Page
           </Link>
@@ -76,41 +76,41 @@ export default async function EditRoundPage({
       </div>
 
       {/* RSVP Summary */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 className="font-semibold text-gray-900 mb-4">
+      <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
+        <h2 className="font-semibold text-white mb-4">
           RSVPs — {confirmed.length}/{round.max_players} confirmed
         </h2>
         <div className="space-y-1">
           {rsvps?.map((rsvp) => (
             <div
               key={rsvp.id}
-              className="flex items-center gap-3 py-2 px-3 rounded-lg bg-gray-50"
+              className="flex items-center gap-3 py-2 px-3 rounded-lg bg-[#1a3520]"
             >
               <span
-                className={`text-xs rounded-full px-2 py-0.5 font-medium ${
+                className={`text-xs rounded-full px-2 py-0.5 font-medium border ${
                   rsvp.status === "confirmed"
-                    ? "bg-green-100 text-green-800"
+                    ? "bg-green-900/40 text-green-300 border-green-800/50"
                     : rsvp.status === "tentative"
-                    ? "bg-yellow-100 text-yellow-800"
+                    ? "bg-yellow-900/40 text-yellow-300 border-yellow-800/50"
                     : rsvp.status === "waitlist"
-                    ? "bg-orange-100 text-orange-800"
-                    : "bg-gray-100 text-gray-500"
+                    ? "bg-orange-900/40 text-orange-300 border-orange-800/50"
+                    : "bg-[#243d2a] text-[#6a8870] border-[#2d5035]"
                 }`}
               >
                 {rsvp.status}
               </span>
-              <span className="text-sm text-gray-800">
+              <span className="text-sm text-white">
                 {rsvp.profiles?.display_name}
               </span>
             </div>
           ))}
           {(rsvps?.length ?? 0) === 0 && (
-            <p className="text-gray-400 text-sm">No RSVPs yet.</p>
+            <p className="text-[#6a8870] text-sm">No RSVPs yet.</p>
           )}
         </div>
 
         {waitlist.length > 0 && (
-          <p className="text-xs text-yellow-700 mt-3">
+          <p className="text-xs text-yellow-400 mt-3">
             {waitlist.length} on waitlist — they&apos;ll be promoted automatically when
             someone drops
           </p>
@@ -119,8 +119,8 @@ export default async function EditRoundPage({
 
       {/* Tee Time Assignment */}
       {confirmed.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-          <h2 className="font-semibold text-gray-900 mb-4">Tee Time Assignment</h2>
+        <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
+          <h2 className="font-semibold text-white mb-4">Tee Time Assignment</h2>
           <TeeTimeAssigner
             roundId={round.id}
             confirmed={confirmed.map((r) => ({
@@ -139,9 +139,9 @@ export default async function EditRoundPage({
 
       {/* Score Entry */}
       {confirmed.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-          <h2 className="font-semibold text-gray-900 mb-1">Score Entry</h2>
-          <p className="text-sm text-gray-500 mb-4">
+        <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
+          <h2 className="font-semibold text-white mb-1">Score Entry</h2>
+          <p className="text-sm text-[#9ab8a0] mb-4">
             Enter scores after the round is complete.
           </p>
           <ScoreEntryForm

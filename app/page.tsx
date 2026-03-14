@@ -61,34 +61,34 @@ export default async function HomePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-white">
           {season?.name ?? "SF Golf League"}
         </h1>
-        <p className="text-gray-500 text-sm mt-1">Welcome back!</p>
+        <p className="text-[#9ab8a0] text-sm mt-1">Welcome back!</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Upcoming Round */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-500 text-xs uppercase tracking-wider mb-4">
+        <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
+          <h2 className="font-semibold text-[#9ab8a0] text-xs uppercase tracking-wider mb-4">
             Next Round
           </h2>
           {upcomingRound ? (
             <div>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-xl font-bold text-white">
                 {formatDate(upcomingRound.date)}
               </p>
-              <p className="text-gray-600 font-medium mt-0.5">
+              <p className="text-[#e8f0ea] font-medium mt-0.5">
                 {upcomingRound.courses?.name}
               </p>
-              <p className="text-gray-400 text-sm">
+              <p className="text-[#6a8870] text-sm">
                 First tee {formatTime(upcomingRound.tee_start_time)}
               </p>
               <div className="mt-3 flex items-center gap-2 text-sm">
-                <span className="bg-green-100 text-green-800 rounded-full px-2.5 py-0.5 font-medium">
+                <span className="bg-green-900/40 text-green-300 rounded-full px-2.5 py-0.5 font-medium border border-green-800/50">
                   {confirmedCount ?? 0} confirmed
                 </span>
-                <span className="text-gray-400">of {upcomingRound.max_players} spots</span>
+                <span className="text-[#6a8870]">of {upcomingRound.max_players} spots</span>
               </div>
 
               {user && (
@@ -105,31 +105,31 @@ export default async function HomePage() {
 
               <Link
                 href={`/rounds/${upcomingRound.id}`}
-                className="block mt-4 text-sm text-green-700 hover:text-green-800 font-medium"
+                className="block mt-4 text-sm text-[#d4af37] hover:text-[#e8c84a] font-medium transition-colors"
               >
                 View tee sheet & details →
               </Link>
             </div>
           ) : (
-            <p className="text-gray-400 text-sm">No upcoming rounds scheduled.</p>
+            <p className="text-[#6a8870] text-sm">No upcoming rounds scheduled.</p>
           )}
         </div>
 
         {/* Season Standings */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-500 text-xs uppercase tracking-wider">
+            <h2 className="font-semibold text-[#9ab8a0] text-xs uppercase tracking-wider">
               Season Standings
             </h2>
             <Link
               href="/leaderboard"
-              className="text-xs text-green-700 hover:underline font-medium"
+              className="text-xs text-[#d4af37] hover:text-[#e8c84a] font-medium transition-colors"
             >
               Full standings →
             </Link>
           </div>
           {standings.length === 0 ? (
-            <p className="text-gray-400 text-sm">No scores yet this season.</p>
+            <p className="text-[#6a8870] text-sm">No scores yet this season.</p>
           ) : (
             <ol className="space-y-2">
               {standings.slice(0, 5).map((entry, i) => (
@@ -137,20 +137,20 @@ export default async function HomePage() {
                   <span
                     className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                       i === 0
-                        ? "bg-yellow-400 text-yellow-900"
+                        ? "bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40"
                         : i === 1
-                        ? "bg-gray-300 text-gray-700"
+                        ? "bg-[#9ab8a0]/20 text-[#9ab8a0] border border-[#9ab8a0]/40"
                         : i === 2
-                        ? "bg-amber-600 text-white"
-                        : "bg-gray-100 text-gray-500"
+                        ? "bg-amber-900/40 text-amber-400 border border-amber-700/40"
+                        : "bg-[#1a3520] text-[#6a8870] border border-[#2d5035]"
                     }`}
                   >
                     {i + 1}
                   </span>
-                  <span className="flex-1 text-sm font-medium text-gray-800 truncate">
+                  <span className="flex-1 text-sm font-medium text-white truncate">
                     {entry.display_name}
                   </span>
-                  <span className="text-sm text-gray-500 flex-shrink-0">
+                  <span className="text-sm text-[#9ab8a0] flex-shrink-0">
                     avg {entry.avg_score.toFixed(1)}
                   </span>
                 </li>
@@ -170,10 +170,10 @@ export default async function HomePage() {
           <Link
             key={item.label}
             href={item.href}
-            className="bg-white border border-gray-100 rounded-xl p-4 text-center hover:border-green-300 hover:shadow-sm transition-all"
+            className="bg-[#243d2a] border border-[#2d5035] rounded-xl p-4 text-center hover:border-[#d4af37]/50 hover:bg-[#2a4830] transition-all"
           >
             <div className="text-2xl mb-1">{item.icon}</div>
-            <div className="text-sm font-medium text-gray-700">{item.label}</div>
+            <div className="text-sm font-medium text-[#9ab8a0]">{item.label}</div>
           </Link>
         ))}
       </div>

@@ -128,7 +128,7 @@ export default function ScoreEntryForm({
   return (
     <div className="space-y-5">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
+        <div className="bg-red-900/30 border border-red-700/50 text-red-300 rounded-lg px-4 py-3 text-sm">
           {error}
         </div>
       )}
@@ -137,7 +137,7 @@ export default function ScoreEntryForm({
         <select
           value={selectedPlayer}
           onChange={(e) => handlePlayerChange(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="bg-[#1a3520] border border-[#2d5035] text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
         >
           {players.map((p) => (
             <option key={p.player_id} value={p.player_id}>
@@ -147,7 +147,7 @@ export default function ScoreEntryForm({
           ))}
         </select>
         <div className="flex items-center gap-2 ml-auto">
-          <span className="text-sm font-semibold text-gray-900">
+          <span className="text-sm font-semibold text-white">
             Total: {totalScore || "—"} ({totalScore - totalPar > 0 ? "+" : ""}
             {totalScore ? totalScore - totalPar : "—"})
           </span>
@@ -155,7 +155,7 @@ export default function ScoreEntryForm({
             onClick={handleSave}
             disabled={saving || totalScore === 0}
             type="button"
-            className="px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800 transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-[#d4af37] text-[#1a3520] rounded-lg text-sm font-bold hover:bg-[#e8c84a] transition-colors disabled:opacity-50"
           >
             {saving ? "Saving..." : saved ? "✓ Saved!" : "Save Scores"}
           </button>
@@ -165,35 +165,35 @@ export default function ScoreEntryForm({
       {/* Score grid */}
       {[front9, back9].map((holes, halfIndex) => (
         <div key={halfIndex} className="overflow-x-auto">
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <p className="text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide mb-2">
             {halfIndex === 0 ? "Front 9" : "Back 9"}
           </p>
           <table className="text-sm border-collapse w-full min-w-max">
             <thead>
-              <tr className="bg-gray-50">
-                <th className="border border-gray-200 px-3 py-2 text-left font-medium text-gray-600 w-16">
+              <tr className="bg-[#1a3520]">
+                <th className="border border-[#2d5035] px-3 py-2 text-left font-medium text-[#9ab8a0] w-16">
                   Hole
                 </th>
                 {holes.map((h) => (
                   <th
                     key={h}
-                    className="border border-gray-200 px-2 py-2 text-center font-medium text-gray-600 w-12"
+                    className="border border-[#2d5035] px-2 py-2 text-center font-medium text-[#9ab8a0] w-12"
                   >
                     {h}
                   </th>
                 ))}
-                <th className="border border-gray-200 px-3 py-2 text-center font-medium text-gray-600 w-14">
+                <th className="border border-[#2d5035] px-3 py-2 text-center font-medium text-[#9ab8a0] w-14">
                   Total
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border border-gray-200 px-3 py-2 font-medium text-gray-600 bg-gray-50">
+                <td className="border border-[#2d5035] px-3 py-2 font-medium text-[#9ab8a0] bg-[#1a3520]">
                   Par
                 </td>
                 {holes.map((h) => (
-                  <td key={h} className="border border-gray-200 px-1 py-1">
+                  <td key={h} className="border border-[#2d5035] px-1 py-1 bg-[#243d2a]">
                     <input
                       type="number"
                       value={scores[h]?.par ?? 4}
@@ -202,23 +202,23 @@ export default function ScoreEntryForm({
                       }
                       min={3}
                       max={6}
-                      className="w-full text-center text-sm bg-transparent focus:outline-none focus:bg-blue-50 rounded py-1"
+                      className="w-full text-center text-sm bg-transparent text-[#9ab8a0] focus:outline-none focus:bg-[#1a3520] rounded py-1"
                     />
                   </td>
                 ))}
-                <td className="border border-gray-200 px-3 py-2 text-center font-medium text-gray-700">
+                <td className="border border-[#2d5035] px-3 py-2 text-center font-medium text-[#9ab8a0] bg-[#1a3520]">
                   {holes.reduce((s, h) => s + (scores[h]?.par ?? 4), 0)}
                 </td>
               </tr>
-              <tr className="bg-white">
-                <td className="border border-gray-200 px-3 py-2 font-medium text-gray-900 bg-gray-50">
+              <tr>
+                <td className="border border-[#2d5035] px-3 py-2 font-medium text-white bg-[#1a3520]">
                   Score
                 </td>
                 {holes.map((h) => {
                   const score = scores[h]?.score ?? 0;
                   const par = scores[h]?.par ?? 4;
                   return (
-                    <td key={h} className="border border-gray-200 px-1 py-1">
+                    <td key={h} className="border border-[#2d5035] px-1 py-1 bg-[#243d2a]">
                       <input
                         type="number"
                         value={score || ""}
@@ -228,20 +228,20 @@ export default function ScoreEntryForm({
                         min={1}
                         max={15}
                         placeholder="—"
-                        className={`w-full text-center text-sm font-semibold focus:outline-none rounded py-1 ${
+                        className={`w-full text-center text-sm font-semibold focus:outline-none rounded py-1 bg-transparent ${
                           score === 0
-                            ? "text-gray-400"
+                            ? "text-[#4a6850]"
                             : score < par
-                            ? "text-red-600 bg-red-50"
+                            ? "text-red-400"
                             : score === par
-                            ? "text-gray-700"
-                            : "text-blue-700 bg-blue-50"
+                            ? "text-[#9ab8a0]"
+                            : "text-blue-400"
                         }`}
                       />
                     </td>
                   );
                 })}
-                <td className="border border-gray-200 px-3 py-2 text-center font-bold text-gray-900">
+                <td className="border border-[#2d5035] px-3 py-2 text-center font-bold text-white bg-[#1a3520]">
                   {holes.reduce((s, h) => s + (scores[h]?.score || 0), 0) || "—"}
                 </td>
               </tr>

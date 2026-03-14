@@ -105,7 +105,7 @@ export default function TeeTimeAssigner({
         <button
           onClick={autoAssign}
           type="button"
-          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+          className="px-4 py-2 bg-[#1a3520] text-[#9ab8a0] border border-[#2d5035] rounded-lg text-sm font-medium hover:bg-[#2a4830] hover:text-white transition-colors"
         >
           Auto-assign groups
         </button>
@@ -113,7 +113,7 @@ export default function TeeTimeAssigner({
           onClick={saveAssignments}
           disabled={saving}
           type="button"
-          className="px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800 transition-colors disabled:opacity-50"
+          className="px-4 py-2 bg-[#d4af37] text-[#1a3520] rounded-lg text-sm font-bold hover:bg-[#e8c84a] transition-colors disabled:opacity-50"
         >
           {saving ? "Saving..." : saved ? "✓ Saved!" : "Save Assignments"}
         </button>
@@ -123,9 +123,9 @@ export default function TeeTimeAssigner({
         {confirmed.map((player) => (
           <div
             key={player.id}
-            className="flex items-center gap-3 py-2 px-3 bg-gray-50 rounded-lg"
+            className="flex items-center gap-3 py-2 px-3 bg-[#1a3520] rounded-lg border border-[#2d5035]"
           >
-            <span className="text-sm font-medium text-gray-800 flex-1">
+            <span className="text-sm font-medium text-white flex-1">
               {player.display_name}
             </span>
             <select
@@ -136,7 +136,7 @@ export default function TeeTimeAssigner({
                   [player.id]: e.target.value,
                 }))
               }
-              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="bg-[#243d2a] border border-[#2d5035] text-white rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
             >
               <option value="">No tee time</option>
               {teeTimes.map((t, i) => (
@@ -150,8 +150,8 @@ export default function TeeTimeAssigner({
       </div>
 
       {/* Group Preview */}
-      <div className="pt-4 border-t border-gray-100">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+      <div className="pt-4 border-t border-[#2d5035]">
+        <p className="text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide mb-3">
           Group Preview
         </p>
         <div className="grid sm:grid-cols-2 gap-3">
@@ -161,14 +161,14 @@ export default function TeeTimeAssigner({
             .map(([teeTime, players], i) => (
               <div
                 key={teeTime}
-                className="bg-green-50 border border-green-100 rounded-lg p-3"
+                className="bg-green-900/20 border border-green-800/30 rounded-lg p-3"
               >
-                <p className="text-xs font-semibold text-green-800 mb-2">
+                <p className="text-xs font-semibold text-green-300 mb-2">
                   {formatTime(teeTime)} — Group {i + 1}
                 </p>
                 <ul className="space-y-1">
                   {players.map((p) => (
-                    <li key={p.id} className="text-sm text-gray-700">
+                    <li key={p.id} className="text-sm text-white">
                       {p.display_name}
                     </li>
                   ))}
@@ -176,13 +176,13 @@ export default function TeeTimeAssigner({
               </div>
             ))}
           {groups.has("unassigned") && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-              <p className="text-xs font-semibold text-gray-500 mb-2">
+            <div className="bg-[#1a3520] border border-[#2d5035] rounded-lg p-3">
+              <p className="text-xs font-semibold text-[#9ab8a0] mb-2">
                 Unassigned
               </p>
               <ul className="space-y-1">
                 {groups.get("unassigned")!.map((p) => (
-                  <li key={p.id} className="text-sm text-gray-500">
+                  <li key={p.id} className="text-sm text-[#6a8870]">
                     {p.display_name}
                   </li>
                 ))}

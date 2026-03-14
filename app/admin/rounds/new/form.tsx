@@ -76,23 +76,25 @@ export default function CreateRoundForm({
     }
   }
 
+  const inputClass = "w-full bg-[#1a3520] border border-[#2d5035] text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50 focus:border-[#d4af37]/50 placeholder-[#6a8870]";
+
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-5">
+    <form onSubmit={handleSubmit} className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6 space-y-5">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
+        <div className="bg-red-900/30 border border-red-700/50 text-red-300 rounded-lg px-4 py-3 text-sm">
           {error}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-[#9ab8a0] mb-1.5">
           Course
         </label>
         <select
           name="course_id"
           required
           onChange={(e) => setShowNewCourse(e.target.value === "new")}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+          className={inputClass}
         >
           <option value="">Select a course...</option>
           {courses.map((c) => (
@@ -105,8 +107,8 @@ export default function CreateRoundForm({
       </div>
 
       {showNewCourse && (
-        <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
-          <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+        <div className="bg-[#1a3520] rounded-lg p-4 space-y-3 border border-[#2d5035]">
+          <p className="text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
             New Course
           </p>
           <input
@@ -114,42 +116,42 @@ export default function CreateRoundForm({
             placeholder="Course name *"
             value={newCourseName}
             onChange={(e) => setNewCourseName(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className={inputClass}
           />
           <input
             type="text"
             placeholder="City (optional)"
             value={newCourseCity}
             onChange={(e) => setNewCourseCity(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className={inputClass}
           />
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">Par:</label>
+            <label className="text-sm text-[#9ab8a0]">Par:</label>
             <input
               type="number"
               value={newCoursePar}
               onChange={(e) => setNewCoursePar(e.target.value)}
               min={60}
               max={80}
-              className="w-20 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-20 bg-[#1a3520] border border-[#2d5035] text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
             />
           </div>
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Date</label>
+        <label className="block text-sm font-medium text-[#9ab8a0] mb-1.5">Date</label>
         <input
           type="date"
           name="date"
           required
-          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          className={inputClass}
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-sm font-medium text-[#9ab8a0] mb-1.5">
             First Tee Time
           </label>
           <input
@@ -157,11 +159,11 @@ export default function CreateRoundForm({
             name="tee_start_time"
             required
             defaultValue="08:00"
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className={inputClass}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-sm font-medium text-[#9ab8a0] mb-1.5">
             Interval (minutes)
           </label>
           <input
@@ -170,13 +172,13 @@ export default function CreateRoundForm({
             defaultValue={8}
             min={5}
             max={20}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className={inputClass}
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-[#9ab8a0] mb-1.5">
           Max Players
         </label>
         <input
@@ -185,26 +187,26 @@ export default function CreateRoundForm({
           defaultValue={20}
           min={1}
           max={100}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          className={inputClass}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-[#9ab8a0] mb-1.5">
           Notes (optional)
         </label>
         <textarea
           name="notes"
           rows={3}
           placeholder="Any details, special rules, directions..."
-          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+          className={inputClass + " resize-none"}
         />
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-green-700 text-white py-3 rounded-lg font-medium hover:bg-green-800 transition-colors disabled:opacity-50"
+        className="w-full bg-[#d4af37] text-[#1a3520] py-3 rounded-lg font-bold hover:bg-[#e8c84a] transition-colors disabled:opacity-50"
       >
         {loading ? "Creating..." : "Create Round"}
       </button>

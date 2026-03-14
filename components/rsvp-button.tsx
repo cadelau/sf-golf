@@ -38,7 +38,6 @@ export default function RsvpButton({
           );
         setStatus("declined");
 
-        // Promote first person on waitlist
         const { data: waitlist } = await supabase
           .from("round_players")
           .select("id")
@@ -63,7 +62,7 @@ export default function RsvpButton({
         setStatus("tentative");
       } else {
         const newStatus =
-          confirmedCount >= maxPlayers && status !== "confirmed"
+          confirmedCount >= maxPlayers && currentStatus !== "confirmed"
             ? "waitlist"
             : "confirmed";
         await supabase
@@ -82,57 +81,54 @@ export default function RsvpButton({
 
   const isFull = confirmedCount >= maxPlayers && currentStatus !== "confirmed";
 
+  const buttons = [
+    {
+      action: "in" as const,
+      emoji: "✅",
+      label: isFull && status !== "confirmed" ? "Waitlist" : "In",
+      active: status === "confirmed" || status === "waitlist",
+      activeClass: "bg-green-700 border-green-600 text-white",
+      inactiveClass: "border-[#2d5035] text-[#9ab8a0] hover:border-green-600 hover:text-green-400",
+    },
+    {
+      action: "tentative" as const,
+      emoji: "🤔",
+      label: "Maybe",
+      active: status === "tentative",
+      activeClass: "bg-yellow-600 border-yellow-500 text-white",
+      inactiveClass: "border-[#2d5035] text-[#9ab8a0] hover:border-yellow-500 hover:text-yellow-400",
+    },
+    {
+      action: "out" as const,
+      emoji: "❌",
+      label: "Out",
+      active: status === "declined",
+      activeClass: "bg-red-700 border-red-600 text-white",
+      inactiveClass: "border-[#2d5035] text-[#9ab8a0] hover:border-red-500 hover:text-red-400",
+    },
+  ];
+
   return (
     <div className="space-y-2">
-      <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden">
-        {/* In */}
-        <button
-          onClick={() => handleRsvp("in")}
-          disabled={loading}
-          className={`px-5 py-2.5 text-sm font-semibold transition-colors border-r border-gray-200 ${
-            status === "confirmed" || status === "waitlist"
-              ? "bg-green-700 text-white"
-              : "bg-white text-gray-500 hover:bg-gray-50"
-          }`}
-        >
-          ✓ {isFull && status !== "confirmed" ? "Waitlist" : "In"}
-        </button>
-
-        {/* Tentative */}
-        <button
-          onClick={() => handleRsvp("tentative")}
-          disabled={loading}
-          className={`px-5 py-2.5 text-sm font-semibold transition-colors border-r border-gray-200 ${
-            status === "tentative"
-              ? "bg-yellow-400 text-yellow-900"
-              : "bg-white text-gray-500 hover:bg-gray-50"
-          }`}
-        >
-          ~ Maybe
-        </button>
-
-        {/* Out */}
-        <button
-          onClick={() => handleRsvp("out")}
-          disabled={loading}
-          className={`px-5 py-2.5 text-sm font-semibold transition-colors ${
-            status === "declined"
-              ? "bg-gray-700 text-white"
-              : "bg-white text-gray-500 hover:bg-gray-50"
-          }`}
-        >
-          ✕ Out
-        </button>
+      <div className="flex items-center gap-2">
+        {buttons.map((btn) => (
+          <button
+            key={btn.action}
+            onClick={() => handleRsvp(btn.action)}
+            disabled={loading}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors disabled:opacity-50 ${
+              btn.active ? btn.activeClass : btn.inactiveClass
+            }`}
+          >
+            <span>{btn.emoji}</span>
+            <span>{btn.label}</span>
+          </button>
+        ))}
       </div>
-
-      {/* Status hint */}
       {status === "waitlist" && (
-        <p className="text-xs text-orange-600 font-medium">
+        <p className="text-xs text-yellow-500 font-medium">
           Round is full — you&apos;re on the waitlist
         </p>
-      )}
-      {!status && (
-        <p className="text-xs text-gray-400">Select an option above</p>
       )}
     </div>
   );

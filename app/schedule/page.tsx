@@ -47,17 +47,17 @@ export default async function SchedulePage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Schedule</h1>
-        <span className="text-sm text-gray-500">{season?.name}</span>
+        <h1 className="text-2xl font-bold text-white">Schedule</h1>
+        <span className="text-sm text-[#9ab8a0]">{season?.name}</span>
       </div>
 
       {/* Upcoming */}
       <section>
-        <h2 className="font-semibold text-gray-500 text-xs uppercase tracking-wider mb-3">
+        <h2 className="font-semibold text-[#9ab8a0] text-xs uppercase tracking-wider mb-3">
           Upcoming Rounds
         </h2>
         {upcoming.length === 0 ? (
-          <p className="text-gray-400 text-sm">No upcoming rounds scheduled.</p>
+          <p className="text-[#6a8870] text-sm">No upcoming rounds scheduled.</p>
         ) : (
           <div className="space-y-3">
             {upcoming.map((round) => {
@@ -80,7 +80,7 @@ export default async function SchedulePage() {
       {/* Past */}
       {past.length > 0 && (
         <section>
-          <h2 className="font-semibold text-gray-500 text-xs uppercase tracking-wider mb-3">
+          <h2 className="font-semibold text-[#9ab8a0] text-xs uppercase tracking-wider mb-3">
             Past Rounds
           </h2>
           <div className="space-y-3">
@@ -125,45 +125,45 @@ function RoundCard({
   return (
     <Link
       href={`/rounds/${round.id}`}
-      className="block bg-white border border-gray-100 rounded-xl p-5 hover:border-green-300 hover:shadow-sm transition-all"
+      className="block bg-[#243d2a] border border-[#2d5035] rounded-xl p-5 hover:border-[#d4af37]/40 hover:bg-[#2a4830] transition-all"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <p className="text-lg font-bold text-gray-900">
+          <p className="text-lg font-bold text-white">
             {formatDate(round.date)}
           </p>
-          <p className="text-sm font-medium text-gray-600 mt-0.5">
+          <p className="text-sm font-medium text-[#9ab8a0] mt-0.5">
             {round.courses?.name ?? "Unknown Course"}
             {round.courses?.city ? ` · ${round.courses.city}` : ""}
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs text-[#6a8870] mt-0.5">
             First tee {formatTime(round.tee_start_time)}
           </p>
           {round.notes && (
-            <p className="text-xs text-gray-500 mt-2 italic">{round.notes}</p>
+            <p className="text-xs text-[#9ab8a0] mt-2 italic">{round.notes}</p>
           )}
         </div>
         <div className="flex flex-col items-end gap-2 flex-shrink-0">
           {isPast ? (
             round.is_finalized ? (
-              <span className="text-xs bg-gray-100 text-gray-600 rounded-full px-2.5 py-0.5 font-medium">
+              <span className="text-xs bg-[#1a3520] text-[#9ab8a0] rounded-full px-2.5 py-0.5 font-medium border border-[#2d5035]">
                 Results in
               </span>
             ) : (
-              <span className="text-xs bg-gray-100 text-gray-500 rounded-full px-2.5 py-0.5">
+              <span className="text-xs bg-[#1a3520] text-[#6a8870] rounded-full px-2.5 py-0.5 border border-[#2d5035]">
                 Completed
               </span>
             )
           ) : rsvpStatus ? (
             <span
-              className={`text-xs rounded-full px-2.5 py-0.5 font-medium ${
+              className={`text-xs rounded-full px-2.5 py-0.5 font-medium border ${
                 rsvpStatus === "confirmed"
-                  ? "bg-green-100 text-green-800"
+                  ? "bg-green-900/40 text-green-300 border-green-800/50"
                   : rsvpStatus === "waitlist"
-                  ? "bg-orange-100 text-orange-800"
+                  ? "bg-orange-900/40 text-orange-300 border-orange-800/50"
                   : rsvpStatus === "tentative"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-gray-100 text-gray-600"
+                  ? "bg-yellow-900/40 text-yellow-300 border-yellow-800/50"
+                  : "bg-[#1a3520] text-[#6a8870] border-[#2d5035]"
               }`}
             >
               {rsvpStatus === "confirmed"
@@ -175,11 +175,11 @@ function RoundCard({
                 : "Declined"}
             </span>
           ) : (
-            <span className="text-xs bg-green-50 text-green-700 rounded-full px-2.5 py-0.5 font-medium border border-green-200">
+            <span className="text-xs bg-[#d4af37]/10 text-[#d4af37] rounded-full px-2.5 py-0.5 font-medium border border-[#d4af37]/30">
               RSVP →
             </span>
           )}
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-[#6a8870]">
             {confirmedCount}/{round.max_players} confirmed
           </span>
         </div>
