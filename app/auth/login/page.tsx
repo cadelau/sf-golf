@@ -21,7 +21,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#1a3520]">
       <div className="bg-[#243d2a] rounded-2xl border border-[#2d5035] p-10 w-full max-w-sm text-center">
         <div className="text-5xl mb-4">⛳</div>
-        <h1 className="text-2xl font-bold text-[#d4af37] font-serif italic mb-1">The League</h1>
+        <h1 className="text-2xl font-bold text-[#d4af37] font-serif italic mb-1">SF Golf</h1>
         <p className="text-[#9ab8a0] text-sm mb-8">
           Sign in to view the schedule, standings, and scorecards.
         </p>
