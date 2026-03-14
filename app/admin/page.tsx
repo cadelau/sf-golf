@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { formatDate } from "@/lib/utils";
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -90,11 +91,7 @@ export default async function AdminPage() {
                     {round.courses?.name}
                   </p>
                   <p className="text-xs text-gray-400">
-                    {new Date(round.date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                    {formatDate(round.date)}
                   </p>
                 </div>
                 <Link
