@@ -129,15 +129,16 @@ function RoundCard({
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-gray-900 truncate">
+          <p className="text-lg font-bold text-gray-900">
+            {formatDate(round.date)}
+          </p>
+          <p className="text-sm font-medium text-gray-600 mt-0.5">
             {round.courses?.name ?? "Unknown Course"}
+            {round.courses?.city ? ` · ${round.courses.city}` : ""}
           </p>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {formatDate(round.date)} · First tee {formatTime(round.tee_start_time)}
+          <p className="text-xs text-gray-400 mt-0.5">
+            First tee {formatTime(round.tee_start_time)}
           </p>
-          {round.courses?.city && (
-            <p className="text-xs text-gray-400 mt-0.5">{round.courses.city}</p>
-          )}
           {round.notes && (
             <p className="text-xs text-gray-500 mt-2 italic">{round.notes}</p>
           )}
