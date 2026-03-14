@@ -10,7 +10,7 @@ export default async function RosterPage() {
 
   const { data: players } = await supabase
     .from("profiles")
-    .select("id, display_name, handicap, email, phone")
+    .select("*")
     .order("display_name");
 
   return (
