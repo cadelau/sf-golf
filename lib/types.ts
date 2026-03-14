@@ -4,6 +4,7 @@ export type Profile = {
   email: string;
   is_admin: boolean;
   handicap: number | null;
+  phone: string | null;
   created_at: string;
 };
 

@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/schedule", label: "Schedule" },
   { href: "/leaderboard", label: "Leaderboard" },
+  { href: "/players", label: "Players" },
 ];
 
 export default function Nav({ profile }: { profile: Profile | null }) {
