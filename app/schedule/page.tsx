@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { formatDate, formatTime } from "@/lib/utils";
+import RsvpButton from "@/components/rsvp-button";
 
 export default async function SchedulePage() {
   const supabase = await createClient();
@@ -74,6 +75,7 @@ export default async function SchedulePage() {
                   rsvpStatus={rsvp ?? null}
                   confirmedCount={confirmed}
                   isPast={false}
+                  userId={user?.id ?? null}
                 />
               );
             })}
@@ -98,6 +100,7 @@ export default async function SchedulePage() {
                   rsvpStatus={null}
                   confirmedCount={confirmed}
                   isPast={true}
+                  userId={null}
                 />
               );
             })}
@@ -108,18 +111,59 @@ export default async function SchedulePage() {
   );
 }
 
+function SpotsIndicator({
+  confirmed,
+  maxPlayers,
+}: {
+  confirmed: number;
+  maxPlayers: number | null;
+}) {
+  if (!maxPlayers) {
+    return (
+      <span className="text-sm text-[#9ab8a0]">
+        <span className="font-semibold text-white">{confirmed}</span> joined
+      </span>
+    );
+  }
+
+  const spotsLeft = maxPlayers - confirmed;
+  const isFull = spotsLeft <= 0;
+  const isAlmostFull = spotsLeft > 0 && spotsLeft <= 3;
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex-1 h-1.5 bg-[#1a3520] rounded-full overflow-hidden w-20">
+        <div
+          className={`h-full rounded-full transition-all ${
+            isFull ? "bg-red-500" : isAlmostFull ? "bg-yellow-500" : "bg-green-500"
+          }`}
+          style={{ width: `${Math.min((confirmed / maxPlayers) * 100, 100)}%` }}
+        />
+      </div>
+      <span
+        className={`text-sm font-medium ${
+          isFull ? "text-red-400" : isAlmostFull ? "text-yellow-400" : "text-[#9ab8a0]"
+        }`}
+      >
+        {isFull ? "Full" : `${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
+      </span>
+    </div>
+  );
+}
+
 function RoundCard({
   round,
   weekNumber,
   rsvpStatus,
   confirmedCount,
   isPast,
+  userId,
 }: {
   round: {
     id: string;
     date: string;
-    tee_start_time: string;
-    max_players: number;
+    tee_start_time: string | null;
+    max_players: number | null;
     is_finalized: boolean;
     notes: string | null;
     courses: { name: string; city: string; par: number } | null;
@@ -128,18 +172,17 @@ function RoundCard({
   rsvpStatus: string | null;
   confirmedCount: number;
   isPast: boolean;
+  userId: string | null;
 }) {
   return (
-    <Link
-      href={`/rounds/${round.id}`}
-      className="block bg-[#243d2a] border border-[#2d5035] rounded-xl p-5 hover:border-[#d4af37]/40 hover:bg-[#2a4830] transition-all"
-    >
+    <div className="bg-[#243d2a] border border-[#2d5035] rounded-xl p-5 hover:border-[#d4af37]/40 transition-colors">
+      {/* Top: info + status badge */}
       <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
+        <Link href={`/rounds/${round.id}`} className="flex-1 min-w-0 group">
           <p className="text-xs font-semibold text-[#d4af37] uppercase tracking-wider mb-0.5">
             Week {weekNumber}
           </p>
-          <p className="text-lg font-bold text-white">
+          <p className="text-lg font-bold text-white group-hover:text-[#e8f0ea] transition-colors">
             {formatDate(round.date)}
           </p>
           <p className="text-sm font-medium text-[#9ab8a0] mt-0.5">
@@ -147,26 +190,27 @@ function RoundCard({
             {round.courses?.city ? ` · ${round.courses.city}` : ""}
           </p>
           <p className="text-xs text-[#6a8870] mt-0.5">
-            {round.tee_start_time ? `First tee ${formatTime(round.tee_start_time)}` : "Tee time TBD"}
+            {round.tee_start_time
+              ? `First tee ${formatTime(round.tee_start_time)}`
+              : "Tee time TBD"}
           </p>
           {round.notes && (
             <p className="text-xs text-[#9ab8a0] mt-2 italic">{round.notes}</p>
           )}
-        </div>
+        </Link>
+
         <div className="flex flex-col items-end gap-2 flex-shrink-0">
           {isPast ? (
-            round.is_finalized ? (
-              <span className="text-xs bg-[#1a3520] text-[#9ab8a0] rounded-full px-2.5 py-0.5 font-medium border border-[#2d5035]">
-                Results in
-              </span>
-            ) : (
-              <span className="text-xs bg-[#1a3520] text-[#6a8870] rounded-full px-2.5 py-0.5 border border-[#2d5035]">
-                Completed
-              </span>
-            )
-          ) : rsvpStatus ? (
-            <span
-              className={`text-xs rounded-full px-2.5 py-0.5 font-medium border ${
+            <span className={`text-xs rounded-full px-2.5 py-0.5 font-medium border ${
+              round.is_finalized
+                ? "bg-[#1a3520] text-[#9ab8a0] border-[#2d5035]"
+                : "bg-[#1a3520] text-[#6a8870] border-[#2d5035]"
+            }`}>
+              {round.is_finalized ? "Results in" : "Completed"}
+            </span>
+          ) : (
+            rsvpStatus && (
+              <span className={`text-xs rounded-full px-2.5 py-0.5 font-medium border ${
                 rsvpStatus === "confirmed"
                   ? "bg-green-900/40 text-green-300 border-green-800/50"
                   : rsvpStatus === "waitlist"
@@ -174,26 +218,31 @@ function RoundCard({
                   : rsvpStatus === "tentative"
                   ? "bg-yellow-900/40 text-yellow-300 border-yellow-800/50"
                   : "bg-[#1a3520] text-[#6a8870] border-[#2d5035]"
-              }`}
-            >
-              {rsvpStatus === "confirmed"
-                ? "✓ In"
-                : rsvpStatus === "waitlist"
-                ? "Waitlist"
-                : rsvpStatus === "tentative"
-                ? "~ Tentative"
-                : "Declined"}
-            </span>
-          ) : (
-            <span className="text-xs bg-[#d4af37]/10 text-[#d4af37] rounded-full px-2.5 py-0.5 font-medium border border-[#d4af37]/30">
-              RSVP →
-            </span>
+              }`}>
+                {rsvpStatus === "confirmed" ? "✓ In"
+                  : rsvpStatus === "waitlist" ? "Waitlist"
+                  : rsvpStatus === "tentative" ? "~ Maybe"
+                  : "Declined"}
+              </span>
+            )
           )}
-          <span className="text-xs text-[#6a8870]">
-            {confirmedCount}{round.max_players ? `/${round.max_players}` : ""} confirmed
-          </span>
         </div>
       </div>
-    </Link>
+
+      {/* Bottom: spots + RSVP buttons */}
+      <div className="mt-4 pt-4 border-t border-[#2d5035] flex items-center justify-between gap-4 flex-wrap">
+        <SpotsIndicator confirmed={confirmedCount} maxPlayers={round.max_players} />
+
+        {!isPast && userId && (
+          <RsvpButton
+            roundId={round.id}
+            playerId={userId}
+            currentStatus={rsvpStatus as "confirmed" | "waitlist" | "declined" | "tentative" | null}
+            maxPlayers={round.max_players}
+            confirmedCount={confirmedCount}
+          />
+        )}
+      </div>
+    </div>
   );
 }
