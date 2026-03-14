@@ -37,12 +37,11 @@ export default async function AdminPage() {
     .from("profiles")
     .select("*", { count: "exact", head: true });
 
-  const { data: recentRounds } = await supabase
+  const { data: rounds } = await supabase
     .from("rounds")
     .select("*, courses(*)")
     .eq("season_id", season?.id ?? "")
-    .order("date", { ascending: false })
-    .limit(5);
+    .order("date", { ascending: false });
 
   return (
     <div className="space-y-6">
@@ -77,18 +76,18 @@ export default async function AdminPage() {
             + Add round
           </Link>
         </div>
-        {(recentRounds?.length ?? 0) === 0 ? (
+        {(rounds?.length ?? 0) === 0 ? (
           <p className="text-[#6a8870] text-sm">No rounds yet. Create your first one!</p>
         ) : (
           <div className="space-y-2">
-            {recentRounds?.map((round) => (
+            {rounds?.map((round) => (
               <div
                 key={round.id}
                 className="flex items-center justify-between py-2.5 border-b border-[#2d5035] last:border-0"
               >
                 <div>
                   <p className="font-medium text-white text-sm">
-                    {round.courses?.name}
+                    {round.courses?.name ?? "Course TBD"}
                   </p>
                   <p className="text-xs text-[#6a8870]">
                     {formatDate(round.date)}
