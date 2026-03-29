@@ -32,15 +32,16 @@ export default function ScoreEntryForm({
   const [selectedPlayer, setSelectedPlayer] = useState<string>(
     players[0]?.player_id ?? ""
   );
-  const [courseHandicap, setCourseHandicap] = useState<number | null>(
-    existing?.course_handicap ?? null
-  );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const existingMap = new Map(existingScorecards.map((sc) => [sc.player_id, sc]));
   const existing = existingMap.get(selectedPlayer);
+
+  const [courseHandicap, setCourseHandicap] = useState<number | null>(
+    existingMap.get(players[0]?.player_id ?? "")?.course_handicap ?? null
+  );
 
   function getInitialScores(): Record<number, { par: number; score: number }> {
     const scores: Record<number, { par: number; score: number }> = {};
