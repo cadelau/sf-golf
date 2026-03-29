@@ -18,14 +18,13 @@ export default async function LeaderboardPage() {
 
   const roundIds = roundRows?.map((r) => r.id) ?? [];
 
-  const { data: scorecards } =
+  const { data: scorecards, error: scError } =
     roundIds.length > 0
       ? await supabase
           .from("scorecards")
-          .select("*, profiles(*)")
+          .select("id, round_id, player_id, total_score")
           .in("round_id", roundIds)
-          .not("total_score", "is", null)
-      : { data: [] };
+      : { data: [], error: null };
 
   const standings = aggregateStandings(scorecards ?? []);
   const hasHandicaps = standings.some((s) => s.handicap !== null);
@@ -39,9 +38,13 @@ export default async function LeaderboardPage() {
 
       {/* TEMP DEBUG — remove after fixing */}
       <div className="bg-black text-green-400 text-xs font-mono rounded p-4 space-y-1">
-        <p>season: {season ? `${season.name} (${season.id})` : "NULL — no active season!"}</p>
-        <p>roundIds: {roundIds.length > 0 ? roundIds.join(", ") : "NONE"}</p>
+        <p>season: {season ? `${season.name} (${season.id})` : "NULL"}</p>
+        <p>roundIds: {roundIds.length}</p>
         <p>scorecards found: {scorecards?.length ?? 0}</p>
+        <p>error: {scError ? JSON.stringify(scError) : "none"}</p>
+        {scorecards?.map((sc) => (
+          <p key={sc.id}>sc: round={sc.round_id} score={sc.total_score}</p>
+        ))}
       </div>
 
       <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] overflow-hidden">
