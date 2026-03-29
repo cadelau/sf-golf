@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { formatDate } from "@/lib/utils";
 
 export type RoundDetail = {
@@ -70,9 +70,8 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
         {standings.map((entry, i) => {
           const isExpanded = expandedId === entry.player_id;
           return (
-            <>
+            <Fragment key={entry.player_id}>
               <tr
-                key={entry.player_id}
                 onClick={() => setExpandedId(isExpanded ? null : entry.player_id)}
                 className="border-t border-[#2d5035] hover:bg-[#2a4830] cursor-pointer transition-colors"
               >
@@ -113,7 +112,7 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
               </tr>
 
               {isExpanded && (
-                <tr key={`${entry.player_id}-detail`} className="border-t border-[#2d5035]">
+                <tr className="border-t border-[#2d5035]">
                   <td colSpan={6} className="bg-[#1a3520] px-4 py-3">
                     <table className="w-full text-sm">
                       <thead>
@@ -149,7 +148,7 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
                   </td>
                 </tr>
               )}
-            </>
+            </Fragment>
           );
         })}
       </tbody>
