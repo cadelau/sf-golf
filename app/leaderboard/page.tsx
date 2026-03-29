@@ -109,7 +109,7 @@ export default async function LeaderboardPage() {
                   </td>
                   {hasHandicaps && (
                     <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
-                      {entry.handicap !== null ? entry.handicap.toFixed(1) : "—"}
+                      {entry.handicap != null ? entry.handicap.toFixed(1) : "—"}
                     </td>
                   )}
                   <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm">
@@ -185,7 +185,7 @@ function aggregateStandings(scorecards: ScorecardRow[]) {
     .map((p) => {
       const gross_avg = p.scores.reduce((a, b) => a + b, 0) / p.scores.length;
       const net_avg =
-        p.handicap !== null ? gross_avg - p.handicap : null;
+        p.handicap != null ? gross_avg - p.handicap : null;
       return {
         player_id: p.player_id,
         display_name: p.display_name,
