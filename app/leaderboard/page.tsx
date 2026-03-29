@@ -51,9 +51,24 @@ type ScorecardRow = {
   player_id: string;
   total_score: number | null;
   course_handicap: number | null;
-  profiles: { display_name: string } | null;
-  rounds: { date: string; courses: { name: string; par: number } | null } | null;
+  profiles: { display_name: string }[] | { display_name: string } | null;
+  rounds: { date: string; courses: { name: string; par: number }[] | { name: string; par: number } | null }[] | { date: string; courses: { name: string; par: number }[] | { name: string; par: number } | null } | null;
 };
+
+function getProfile(profiles: ScorecardRow["profiles"]) {
+  if (!profiles) return null;
+  return Array.isArray(profiles) ? profiles[0] ?? null : profiles;
+}
+
+function getRound(rounds: ScorecardRow["rounds"]) {
+  if (!rounds) return null;
+  return Array.isArray(rounds) ? rounds[0] ?? null : rounds;
+}
+
+function getCourse(courses: { name: string; par: number }[] | { name: string; par: number } | null | undefined) {
+  if (!courses) return null;
+  return Array.isArray(courses) ? courses[0] ?? null : courses;
+}
 
 function aggregateStandings(scorecards: ScorecardRow[]): StandingEntry[] {
   const map = new Map<
@@ -66,21 +81,24 @@ function aggregateStandings(scorecards: ScorecardRow[]): StandingEntry[] {
   >();
 
   for (const sc of scorecards) {
-    if (!sc.total_score || !sc.profiles) continue;
-    const coursePar = sc.rounds?.courses?.par;
-    if (coursePar == null) continue;
+    if (!sc.total_score) continue;
+    const profile = getProfile(sc.profiles);
+    if (!profile) continue;
+    const roundData = getRound(sc.rounds);
+    const courseData = getCourse(roundData?.courses);
+    if (!roundData || !courseData) continue;
 
     const gross = sc.total_score;
     const net = sc.course_handicap != null ? gross - sc.course_handicap : null;
-    const netToPar = (net ?? gross) - coursePar;
+    const netToPar = (net ?? gross) - courseData.par;
 
-    const round = { date: sc.rounds!.date, course: sc.rounds!.courses!.name, gross, net, netToPar };
+    const round = { date: roundData.date, course: courseData.name, gross, net, netToPar };
     const entry = map.get(sc.player_id);
     if (entry) {
       entry.rawRounds.push(round);
     } else {
       map.set(sc.player_id, {
-        display_name: sc.profiles.display_name,
+        display_name: profile.display_name,
         player_id: sc.player_id,
         rawRounds: [round],
       });

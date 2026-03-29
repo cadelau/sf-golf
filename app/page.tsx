@@ -302,7 +302,7 @@ type ScorecardRow = {
   round_id: string;
   total_score: number | null;
   course_handicap: number | null;
-  profiles: { display_name: string } | null;
+  profiles: { display_name: string }[] | { display_name: string } | null;
 };
 
 function aggregateStandings(scorecards: ScorecardRow[], roundParMap: Map<string, number | null>) {
@@ -312,7 +312,9 @@ function aggregateStandings(scorecards: ScorecardRow[], roundParMap: Map<string,
   >();
 
   for (const sc of scorecards) {
-    if (!sc.total_score || !sc.profiles) continue;
+    if (!sc.total_score) continue;
+    const profile = Array.isArray(sc.profiles) ? sc.profiles[0] : sc.profiles;
+    if (!profile) continue;
     const coursePar = roundParMap.get(sc.round_id);
     if (coursePar == null) continue;
     const net = sc.course_handicap != null ? sc.total_score - sc.course_handicap : sc.total_score;
@@ -322,7 +324,7 @@ function aggregateStandings(scorecards: ScorecardRow[], roundParMap: Map<string,
       entry.net_to_pars.push(netToPar);
     } else {
       map.set(sc.player_id, {
-        display_name: sc.profiles.display_name,
+        display_name: profile.display_name,
         player_id: sc.player_id,
         net_to_pars: [netToPar],
       });
