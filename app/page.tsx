@@ -172,10 +172,10 @@ export default async function HomePage() {
                   <span className="flex-1 text-sm font-medium text-white truncate">
                     {entry.display_name}
                   </span>
-                  <span className="text-xs text-[#6a8870] flex-shrink-0">
-                    {entry.rounds_counted}R
+                  <span className="text-xs text-[#6a8870] flex-shrink-0 hidden sm:inline">
+                    {entry.rounds_counted} {entry.rounds_counted === 1 ? "round" : "rounds"}
                   </span>
-                  <span className={`text-sm font-semibold flex-shrink-0 tabular-nums w-10 text-right ${
+                  <span className={`text-sm font-semibold flex-shrink-0 tabular-nums w-8 text-right ${
                     entry.cumulative_net_to_par < 0 ? "text-red-400"
                     : entry.cumulative_net_to_par === 0 ? "text-[#9ab8a0]"
                     : "text-blue-400"

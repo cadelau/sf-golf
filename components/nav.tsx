@@ -74,7 +74,7 @@ export default function Nav({
             onClick={signOut}
             className="px-3 py-1.5 rounded-lg border border-[#2d5035] text-[#9ab8a0] text-sm hover:border-[#d4af37] hover:text-[#d4af37] transition-colors"
           >
-            Out
+            Sign Out
           </button>
         </div>
       </div>
