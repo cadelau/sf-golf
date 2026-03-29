@@ -41,7 +41,7 @@ export default async function EditRoundPage({
 
   const { data: scorecards } = await supabase
     .from("scorecards")
-    .select("*, profiles(*), hole_scores(*)")
+    .select("*, profiles!scorecards_player_id_fkey(*), hole_scores(*)")
     .eq("round_id", id);
 
   const { data: courseHoles } = round.course_id

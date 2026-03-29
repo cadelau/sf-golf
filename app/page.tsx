@@ -55,13 +55,15 @@ export default async function HomePage() {
   const myRsvp = upcomingRound ? (myRsvpMap.get(upcomingRound.id) ?? null) : null;
 
   // Season standings (top 5)
-  const { data: scorecards } = season
-    ? await supabase
-        .from("scorecards")
-        .select("*, profiles(*), rounds!inner(season_id)")
-        .eq("rounds.season_id", season.id)
-        .not("total_score", "is", null)
-    : { data: [] };
+  const roundIds = allRounds?.map((r) => r.id) ?? [];
+  const { data: scorecards } =
+    roundIds.length > 0
+      ? await supabase
+          .from("scorecards")
+          .select("*, profiles!scorecards_player_id_fkey(*)")
+          .in("round_id", roundIds)
+          .not("total_score", "is", null)
+      : { data: [] };
   const standings = aggregateStandings(scorecards ?? []);
 
   // Roster

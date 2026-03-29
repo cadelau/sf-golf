@@ -43,7 +43,7 @@ export default async function RoundDetailPage({
   // Scorecards
   const { data: rawScorecards } = await supabase
     .from("scorecards")
-    .select("*, profiles(*), hole_scores(*)")
+    .select("*, profiles!scorecards_player_id_fkey(*), hole_scores(*)")
     .eq("round_id", id);
 
   // Sort by net score if all scorecards have a course_handicap, otherwise by gross
