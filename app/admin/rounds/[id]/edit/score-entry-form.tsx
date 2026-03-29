@@ -10,6 +10,7 @@ type ExistingScorecard = {
   id: string;
   player_id: string;
   total_score: number | null;
+  course_handicap: number | null;
   hole_scores: HoleScore[];
 };
 
@@ -30,6 +31,9 @@ export default function ScoreEntryForm({
   const router = useRouter();
   const [selectedPlayer, setSelectedPlayer] = useState<string>(
     players[0]?.player_id ?? ""
+  );
+  const [courseHandicap, setCourseHandicap] = useState<number | null>(
+    existing?.course_handicap ?? null
   );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -66,6 +70,7 @@ export default function ScoreEntryForm({
       };
     }
     setScores(newScores);
+    setCourseHandicap(ex?.course_handicap ?? null);
   }
 
   function updateScore(hole: number, field: "par" | "score", value: number) {
@@ -77,6 +82,7 @@ export default function ScoreEntryForm({
 
   const totalScore = Object.values(scores).reduce((s, h) => s + (h.score || 0), 0);
   const totalPar = Object.values(scores).reduce((s, h) => s + h.par, 0);
+  const netScore = totalScore > 0 && courseHandicap !== null ? totalScore - courseHandicap : null;
 
   async function handleSave() {
     setSaving(true);
@@ -90,6 +96,7 @@ export default function ScoreEntryForm({
             round_id: roundId,
             player_id: selectedPlayer,
             total_score: totalScore,
+            course_handicap: courseHandicap,
           },
           { onConflict: "round_id,player_id" }
         )
@@ -146,11 +153,30 @@ export default function ScoreEntryForm({
             </option>
           ))}
         </select>
+        <div className="flex items-center gap-1.5">
+          <label className="text-xs text-[#9ab8a0] whitespace-nowrap">Course HCP</label>
+          <input
+            type="number"
+            value={courseHandicap ?? ""}
+            onChange={(e) =>
+              setCourseHandicap(e.target.value === "" ? null : parseInt(e.target.value))
+            }
+            min={0}
+            max={54}
+            placeholder="—"
+            className="w-16 text-center text-sm bg-[#1a3520] border border-[#2d5035] text-white rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
+          />
+        </div>
         <div className="flex items-center gap-2 ml-auto">
           <span className="text-sm font-semibold text-white">
-            Total: {totalScore || "—"} ({totalScore - totalPar > 0 ? "+" : ""}
+            Gross: {totalScore || "—"} ({totalScore - totalPar > 0 ? "+" : ""}
             {totalScore ? totalScore - totalPar : "—"})
           </span>
+          {netScore !== null && (
+            <span className="text-sm font-semibold text-[#d4af37]">
+              Net: {netScore}
+            </span>
+          )}
           <button
             onClick={handleSave}
             disabled={saving || totalScore === 0}

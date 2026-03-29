@@ -55,6 +55,7 @@ export type Scorecard = {
   round_id: string;
   player_id: string;
   total_score: number;
+  course_handicap: number | null;
   notes: string | null;
   entered_by: string;
   created_at: string;

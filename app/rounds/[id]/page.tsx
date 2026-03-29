@@ -41,11 +41,25 @@ export default async function RoundDetailPage({
   const groups = groupByTeeTimes(confirmed);
 
   // Scorecards
-  const { data: scorecards } = await supabase
+  const { data: rawScorecards } = await supabase
     .from("scorecards")
     .select("*, profiles(*), hole_scores(*)")
-    .eq("round_id", id)
-    .order("total_score", { ascending: true });
+    .eq("round_id", id);
+
+  // Sort by net score if all scorecards have a course_handicap, otherwise by gross
+  const allHaveHandicap =
+    (rawScorecards?.length ?? 0) > 0 &&
+    rawScorecards!.every((sc) => sc.course_handicap !== null);
+
+  const scorecards = [...(rawScorecards ?? [])].sort((a, b) => {
+    const aScore = allHaveHandicap
+      ? a.total_score - a.course_handicap
+      : a.total_score;
+    const bScore = allHaveHandicap
+      ? b.total_score - b.course_handicap
+      : b.total_score;
+    return aScore - bScore;
+  });
 
   return (
     <div className="space-y-6">
@@ -225,11 +239,25 @@ export default async function RoundDetailPage({
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="font-bold text-white text-lg">{sc.total_score}</span>
-                    {round.courses?.par && (
-                      <span className="text-sm text-[#9ab8a0] ml-1">
-                        ({scoreToPar(sc.total_score, round.courses.par)})
-                      </span>
+                    {sc.course_handicap !== null ? (
+                      <>
+                        <span className="font-bold text-white text-lg">
+                          {sc.total_score - sc.course_handicap}
+                        </span>
+                        <span className="text-xs text-[#9ab8a0] ml-1">net</span>
+                        <span className="text-sm text-[#6a8870] ml-2">
+                          ({sc.total_score} gross)
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-bold text-white text-lg">{sc.total_score}</span>
+                        {round.courses?.par && (
+                          <span className="text-sm text-[#9ab8a0] ml-1">
+                            ({scoreToPar(sc.total_score, round.courses.par)})
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

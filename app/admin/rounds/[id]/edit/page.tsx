@@ -5,6 +5,7 @@ import { formatDate, formatTime } from "@/lib/utils";
 import TeeTimeAssigner from "./tee-time-assigner";
 import ScoreEntryForm from "./score-entry-form";
 import DeleteRoundButton from "./delete-round-button";
+import AddPlayerForm from "./add-player-form";
 
 export default async function EditRoundPage({
   params,
@@ -43,8 +44,18 @@ export default async function EditRoundPage({
     .select("*, profiles(*), hole_scores(*)")
     .eq("round_id", id);
 
+  const { data: allProfiles } = await supabase
+    .from("profiles")
+    .select("id, display_name")
+    .order("display_name", { ascending: true });
+
   const confirmed = rsvps?.filter((r) => r.status === "confirmed") ?? [];
   const waitlist = rsvps?.filter((r) => r.status === "waitlist") ?? [];
+
+  const alreadyInRound = new Set(rsvps?.map((r) => r.player_id) ?? []);
+  const availablePlayers = (allProfiles ?? []).filter(
+    (p) => !alreadyInRound.has(p.id)
+  );
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -115,6 +126,8 @@ export default async function EditRoundPage({
             someone drops
           </p>
         )}
+
+        <AddPlayerForm roundId={round.id} availablePlayers={availablePlayers} />
       </div>
 
       {/* Tee Time Assignment */}
