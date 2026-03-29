@@ -22,8 +22,9 @@ export default async function LeaderboardPage() {
     roundIds.length > 0
       ? await supabase
           .from("scorecards")
-          .select("id, round_id, player_id, total_score")
+          .select("id, round_id, player_id, total_score, profiles(id, display_name, handicap)")
           .in("round_id", roundIds)
+          .not("total_score", "is", null)
       : { data: [], error: null };
 
   const standings = aggregateStandings(scorecards ?? []);
@@ -43,7 +44,7 @@ export default async function LeaderboardPage() {
         <p>scorecards found: {scorecards?.length ?? 0}</p>
         <p>error: {scError ? JSON.stringify(scError) : "none"}</p>
         {scorecards?.map((sc) => (
-          <p key={sc.id}>sc: round={sc.round_id} score={sc.total_score}</p>
+          <p key={sc.id}>sc: score={sc.total_score} profiles={JSON.stringify(sc.profiles)}</p>
         ))}
       </div>
 
