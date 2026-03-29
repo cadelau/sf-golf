@@ -37,6 +37,13 @@ export default async function LeaderboardPage() {
         <p className="text-[#9ab8a0] text-sm mt-1">{season?.name}</p>
       </div>
 
+      {/* TEMP DEBUG — remove after fixing */}
+      <div className="bg-black text-green-400 text-xs font-mono rounded p-4 space-y-1">
+        <p>season: {season ? `${season.name} (${season.id})` : "NULL — no active season!"}</p>
+        <p>roundIds: {roundIds.length > 0 ? roundIds.join(", ") : "NONE"}</p>
+        <p>scorecards found: {scorecards?.length ?? 0}</p>
+      </div>
+
       <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] overflow-hidden">
         {standings.length === 0 ? (
           <div className="p-8 text-center text-[#6a8870]">
