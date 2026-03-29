@@ -6,6 +6,7 @@ import TeeTimeAssigner from "./tee-time-assigner";
 import ScoreEntryForm from "./score-entry-form";
 import DeleteRoundButton from "./delete-round-button";
 import AddPlayerForm from "./add-player-form";
+import EditRoundDetailsForm from "./edit-round-details-form";
 
 export default async function EditRoundPage({
   params,
@@ -57,6 +58,11 @@ export default async function EditRoundPage({
     .select("id, display_name")
     .order("display_name", { ascending: true });
 
+  const { data: allCourses } = await supabase
+    .from("courses")
+    .select("id, name, city, par")
+    .order("name", { ascending: true });
+
   const confirmed = rsvps?.filter((r) => r.status === "confirmed") ?? [];
   const waitlist = rsvps?.filter((r) => r.status === "waitlist") ?? [];
 
@@ -92,6 +98,23 @@ export default async function EditRoundPage({
           </Link>
           <DeleteRoundButton roundId={round.id} />
         </div>
+      </div>
+
+      {/* Round Details */}
+      <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
+        <h2 className="font-semibold text-white mb-4">Round Details</h2>
+        <EditRoundDetailsForm
+          round={{
+            id: round.id,
+            course_id: round.course_id,
+            date: round.date,
+            tee_start_time: round.tee_start_time,
+            tee_interval_minutes: round.tee_interval_minutes,
+            max_players: round.max_players,
+            notes: round.notes,
+          }}
+          courses={allCourses ?? []}
+        />
       </div>
 
       {/* RSVP Summary */}
