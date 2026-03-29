@@ -56,15 +56,16 @@ export default async function HomePage() {
 
   // Season standings (top 5)
   const roundIds = allRounds?.map((r) => r.id) ?? [];
+  const roundParMap = new Map((allRounds ?? []).map((r) => [r.id, r.courses?.par ?? null]));
   const { data: scorecards } =
     roundIds.length > 0
       ? await supabase
           .from("scorecards")
-          .select("player_id, total_score, course_handicap, profiles!scorecards_player_id_fkey(display_name), rounds(courses(par))")
+          .select("player_id, round_id, total_score, course_handicap, profiles!scorecards_player_id_fkey(display_name)")
           .in("round_id", roundIds)
           .not("total_score", "is", null)
       : { data: [] };
-  const standings = aggregateStandings(scorecards ?? []);
+  const standings = aggregateStandings(scorecards ?? [], roundParMap);
 
   // Roster
   const { data: players } = await supabase
@@ -171,7 +172,14 @@ export default async function HomePage() {
                   <span className="flex-1 text-sm font-medium text-white truncate">
                     {entry.display_name}
                   </span>
-                  <span className="text-sm font-semibold flex-shrink-0 tabular-nums" style={{ color: entry.cumulative_net_to_par < 0 ? "#f87171" : entry.cumulative_net_to_par === 0 ? "#9ab8a0" : "#60a5fa" }}>
+                  <span className="text-xs text-[#6a8870] flex-shrink-0">
+                    {entry.rounds_counted}R
+                  </span>
+                  <span className={`text-sm font-semibold flex-shrink-0 tabular-nums w-10 text-right ${
+                    entry.cumulative_net_to_par < 0 ? "text-red-400"
+                    : entry.cumulative_net_to_par === 0 ? "text-[#9ab8a0]"
+                    : "text-blue-400"
+                  }`}>
                     {entry.cumulative_net_to_par === 0 ? "E" : entry.cumulative_net_to_par > 0 ? `+${entry.cumulative_net_to_par}` : entry.cumulative_net_to_par}
                   </span>
                 </li>
@@ -291,13 +299,13 @@ export default async function HomePage() {
 
 type ScorecardRow = {
   player_id: string;
+  round_id: string;
   total_score: number | null;
   course_handicap: number | null;
   profiles: { display_name: string } | null;
-  rounds: { courses: { par: number } | null } | null;
 };
 
-function aggregateStandings(scorecards: ScorecardRow[]) {
+function aggregateStandings(scorecards: ScorecardRow[], roundParMap: Map<string, number | null>) {
   const map = new Map<
     string,
     { display_name: string; player_id: string; net_to_pars: number[] }
@@ -305,7 +313,7 @@ function aggregateStandings(scorecards: ScorecardRow[]) {
 
   for (const sc of scorecards) {
     if (!sc.total_score || !sc.profiles) continue;
-    const coursePar = sc.rounds?.courses?.par;
+    const coursePar = roundParMap.get(sc.round_id);
     if (coursePar == null) continue;
     const net = sc.course_handicap != null ? sc.total_score - sc.course_handicap : sc.total_score;
     const netToPar = net - coursePar;
