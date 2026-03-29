@@ -60,7 +60,7 @@ export default async function HomePage() {
     roundIds.length > 0
       ? await supabase
           .from("scorecards")
-          .select("*, profiles!scorecards_player_id_fkey(*)")
+          .select("player_id, total_score, course_handicap, profiles!scorecards_player_id_fkey(display_name), rounds(courses(par))")
           .in("round_id", roundIds)
           .not("total_score", "is", null)
       : { data: [] };
@@ -171,8 +171,8 @@ export default async function HomePage() {
                   <span className="flex-1 text-sm font-medium text-white truncate">
                     {entry.display_name}
                   </span>
-                  <span className="text-sm text-[#9ab8a0] flex-shrink-0">
-                    avg {entry.avg_score.toFixed(1)}
+                  <span className="text-sm font-semibold flex-shrink-0 tabular-nums" style={{ color: entry.cumulative_net_to_par < 0 ? "#f87171" : entry.cumulative_net_to_par === 0 ? "#9ab8a0" : "#60a5fa" }}>
+                    {entry.cumulative_net_to_par === 0 ? "E" : entry.cumulative_net_to_par > 0 ? `+${entry.cumulative_net_to_par}` : entry.cumulative_net_to_par}
                   </span>
                 </li>
               ))}
@@ -292,36 +292,48 @@ export default async function HomePage() {
 type ScorecardRow = {
   player_id: string;
   total_score: number | null;
+  course_handicap: number | null;
   profiles: { display_name: string } | null;
+  rounds: { courses: { par: number } | null } | null;
 };
 
 function aggregateStandings(scorecards: ScorecardRow[]) {
   const map = new Map<
     string,
-    { display_name: string; player_id: string; scores: number[] }
+    { display_name: string; player_id: string; net_to_pars: number[] }
   >();
 
   for (const sc of scorecards) {
     if (!sc.total_score || !sc.profiles) continue;
-    const existing = map.get(sc.player_id);
-    if (existing) {
-      existing.scores.push(sc.total_score);
+    const coursePar = sc.rounds?.courses?.par;
+    if (coursePar == null) continue;
+    const net = sc.course_handicap != null ? sc.total_score - sc.course_handicap : sc.total_score;
+    const netToPar = net - coursePar;
+    const entry = map.get(sc.player_id);
+    if (entry) {
+      entry.net_to_pars.push(netToPar);
     } else {
       map.set(sc.player_id, {
         display_name: sc.profiles.display_name,
         player_id: sc.player_id,
-        scores: [sc.total_score],
+        net_to_pars: [netToPar],
       });
     }
   }
 
   return Array.from(map.values())
-    .map((p) => ({
-      player_id: p.player_id,
-      display_name: p.display_name,
-      rounds_played: p.scores.length,
-      total_score: p.scores.reduce((a, b) => a + b, 0),
-      avg_score: p.scores.reduce((a, b) => a + b, 0) / p.scores.length,
-    }))
-    .sort((a, b) => a.avg_score - b.avg_score);
+    .map((p) => {
+      const best5 = [...p.net_to_pars].sort((a, b) => a - b).slice(0, 5);
+      return {
+        player_id: p.player_id,
+        display_name: p.display_name,
+        rounds_counted: best5.length,
+        rounds_played: p.net_to_pars.length,
+        cumulative_net_to_par: best5.reduce((a, b) => a + b, 0),
+      };
+    })
+    .sort((a, b) => {
+      if (b.rounds_counted !== a.rounds_counted) return b.rounds_counted - a.rounds_counted;
+      return a.cumulative_net_to_par - b.cumulative_net_to_par;
+    });
 }
