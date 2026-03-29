@@ -9,13 +9,23 @@ export default async function LeaderboardPage() {
     .eq("is_active", true)
     .single();
 
-  const { data: scorecards } = season
+  const { data: roundRows } = season
     ? await supabase
-        .from("scorecards")
-        .select("*, profiles(*), rounds!inner(season_id)")
-        .eq("rounds.season_id", season.id)
-        .not("total_score", "is", null)
+        .from("rounds")
+        .select("id")
+        .eq("season_id", season.id)
     : { data: [] };
+
+  const roundIds = roundRows?.map((r) => r.id) ?? [];
+
+  const { data: scorecards } =
+    roundIds.length > 0
+      ? await supabase
+          .from("scorecards")
+          .select("*, profiles(*)")
+          .in("round_id", roundIds)
+          .not("total_score", "is", null)
+      : { data: [] };
 
   const standings = aggregateStandings(scorecards ?? []);
   const hasHandicaps = standings.some((s) => s.handicap !== null);
