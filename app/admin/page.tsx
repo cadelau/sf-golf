@@ -128,6 +128,16 @@ export default async function AdminPage() {
             See all upcoming rounds and RSVPs
           </p>
         </Link>
+        <Link
+          href="/admin/courses"
+          className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-5 hover:border-[#d4af37]/40 hover:bg-[#2a4830] transition-all"
+        >
+          <div className="text-2xl mb-2">⛳</div>
+          <p className="font-semibold text-white">Manage Courses</p>
+          <p className="text-sm text-[#9ab8a0] mt-1">
+            Set per-hole par values for each course
+          </p>
+        </Link>
       </div>
     </div>
   );

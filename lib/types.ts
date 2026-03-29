@@ -63,6 +63,13 @@ export type Scorecard = {
   hole_scores?: HoleScore[];
 };
 
+export type CourseHole = {
+  id: string;
+  course_id: string;
+  hole_number: number;
+  par: number;
+};
+
 export type HoleScore = {
   id: string;
   scorecard_id: string;

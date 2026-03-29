@@ -13,83 +13,74 @@ type ExistingScorecard = {
   course_handicap: number | null;
   hole_scores: HoleScore[];
 };
+type CourseHole = { hole_number: number; par: number };
 
 const DEFAULT_PARS = [4, 4, 3, 4, 5, 4, 3, 5, 4, 4, 4, 3, 4, 5, 4, 3, 4, 5];
 
 export default function ScoreEntryForm({
   roundId,
-  coursePar,
+  courseHoles,
   players,
   existingScorecards,
 }: {
   roundId: string;
   coursePar: number;
+  courseHoles: CourseHole[];
   players: Player[];
   existingScorecards: ExistingScorecard[];
 }) {
   const supabase = createClient();
   const router = useRouter();
+
+  // Build canonical par per hole from course configuration
+  const holePars: Record<number, number> = {};
+  for (let i = 1; i <= 18; i++) {
+    const configured = courseHoles.find((h) => h.hole_number === i);
+    holePars[i] = configured?.par ?? DEFAULT_PARS[i - 1] ?? 4;
+  }
+
+  const existingMap = new Map(existingScorecards.map((sc) => [sc.player_id, sc]));
+
   const [selectedPlayer, setSelectedPlayer] = useState<string>(
     players[0]?.player_id ?? ""
   );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const existingMap = new Map(existingScorecards.map((sc) => [sc.player_id, sc]));
-  const existing = existingMap.get(selectedPlayer);
-
   const [courseHandicap, setCourseHandicap] = useState<number | null>(
     existingMap.get(players[0]?.player_id ?? "")?.course_handicap ?? null
   );
 
-  function getInitialScores(): Record<number, { par: number; score: number }> {
-    const scores: Record<number, { par: number; score: number }> = {};
+  function getInitialScores(): Record<number, number> {
+    const ex = existingMap.get(selectedPlayer);
+    const scores: Record<number, number> = {};
     for (let i = 1; i <= 18; i++) {
-      const existingHole = existing?.hole_scores.find((h) => h.hole_number === i);
-      scores[i] = {
-        par: existingHole?.par ?? DEFAULT_PARS[i - 1] ?? 4,
-        score: existingHole?.score ?? 0,
-      };
+      scores[i] = ex?.hole_scores.find((h) => h.hole_number === i)?.score ?? 0;
     }
     return scores;
   }
 
-  const [scores, setScores] = useState<Record<number, { par: number; score: number }>>(
-    getInitialScores
-  );
+  const [scores, setScores] = useState<Record<number, number>>(getInitialScores);
 
   function handlePlayerChange(playerId: string) {
     setSelectedPlayer(playerId);
     const ex = existingMap.get(playerId);
-    const newScores: Record<number, { par: number; score: number }> = {};
+    const newScores: Record<number, number> = {};
     for (let i = 1; i <= 18; i++) {
-      const exHole = ex?.hole_scores.find((h) => h.hole_number === i);
-      newScores[i] = {
-        par: exHole?.par ?? DEFAULT_PARS[i - 1] ?? 4,
-        score: exHole?.score ?? 0,
-      };
+      newScores[i] = ex?.hole_scores.find((h) => h.hole_number === i)?.score ?? 0;
     }
     setScores(newScores);
     setCourseHandicap(ex?.course_handicap ?? null);
   }
 
-  function updateScore(hole: number, field: "par" | "score", value: number) {
-    setScores((prev) => ({
-      ...prev,
-      [hole]: { ...prev[hole], [field]: value },
-    }));
-  }
-
-  const totalScore = Object.values(scores).reduce((s, h) => s + (h.score || 0), 0);
-  const totalPar = Object.values(scores).reduce((s, h) => s + h.par, 0);
+  const totalScore = Object.values(scores).reduce((s, v) => s + (v || 0), 0);
+  const totalPar = Object.values(holePars).reduce((s, p) => s + p, 0);
   const netScore = totalScore > 0 && courseHandicap !== null ? totalScore - courseHandicap : null;
 
   async function handleSave() {
     setSaving(true);
     setError(null);
     try {
-      // Upsert scorecard
       const { data: sc, error: scError } = await supabase
         .from("scorecards")
         .upsert(
@@ -106,12 +97,11 @@ export default function ScoreEntryForm({
 
       if (scError) throw scError;
 
-      // Upsert hole scores
-      const holeScoreRows = Object.entries(scores).map(([hole, data]) => ({
+      const holeScoreRows = Object.entries(scores).map(([hole, score]) => ({
         scorecard_id: sc.id,
         hole_number: parseInt(hole),
-        par: data.par,
-        score: data.score,
+        par: holePars[parseInt(hole)] ?? 4,
+        score,
       }));
 
       const { error: hsError } = await supabase
@@ -133,11 +123,22 @@ export default function ScoreEntryForm({
   const front9 = Array.from({ length: 9 }, (_, i) => i + 1);
   const back9 = Array.from({ length: 9 }, (_, i) => i + 10);
 
+  const hasCourseHoles = courseHoles.length > 0;
+
   return (
     <div className="space-y-5">
       {error && (
         <div className="bg-red-900/30 border border-red-700/50 text-red-300 rounded-lg px-4 py-3 text-sm">
           {error}
+        </div>
+      )}
+
+      {!hasCourseHoles && (
+        <div className="bg-yellow-900/20 border border-yellow-700/40 text-yellow-300 rounded-lg px-4 py-3 text-sm">
+          No hole pars configured for this course. Using default pars.{" "}
+          <a href="/admin/courses" className="underline hover:text-yellow-200">
+            Set them up →
+          </a>
         </div>
       )}
 
@@ -220,21 +221,15 @@ export default function ScoreEntryForm({
                   Par
                 </td>
                 {holes.map((h) => (
-                  <td key={h} className="border border-[#2d5035] px-1 py-1 bg-[#243d2a]">
-                    <input
-                      type="number"
-                      value={scores[h]?.par ?? 4}
-                      onChange={(e) =>
-                        updateScore(h, "par", parseInt(e.target.value) || 4)
-                      }
-                      min={3}
-                      max={6}
-                      className="w-full text-center text-sm bg-transparent text-[#9ab8a0] focus:outline-none focus:bg-[#1a3520] rounded py-1"
-                    />
+                  <td
+                    key={h}
+                    className="border border-[#2d5035] px-2 py-2 text-center text-[#9ab8a0] bg-[#1a3520]"
+                  >
+                    {holePars[h]}
                   </td>
                 ))}
                 <td className="border border-[#2d5035] px-3 py-2 text-center font-medium text-[#9ab8a0] bg-[#1a3520]">
-                  {holes.reduce((s, h) => s + (scores[h]?.par ?? 4), 0)}
+                  {holes.reduce((s, h) => s + holePars[h], 0)}
                 </td>
               </tr>
               <tr>
@@ -242,15 +237,18 @@ export default function ScoreEntryForm({
                   Score
                 </td>
                 {holes.map((h) => {
-                  const score = scores[h]?.score ?? 0;
-                  const par = scores[h]?.par ?? 4;
+                  const score = scores[h] ?? 0;
+                  const par = holePars[h];
                   return (
                     <td key={h} className="border border-[#2d5035] px-1 py-1 bg-[#243d2a]">
                       <input
                         type="number"
                         value={score || ""}
                         onChange={(e) =>
-                          updateScore(h, "score", parseInt(e.target.value) || 0)
+                          setScores((prev) => ({
+                            ...prev,
+                            [h]: parseInt(e.target.value) || 0,
+                          }))
                         }
                         min={1}
                         max={15}
@@ -269,7 +267,7 @@ export default function ScoreEntryForm({
                   );
                 })}
                 <td className="border border-[#2d5035] px-3 py-2 text-center font-bold text-white bg-[#1a3520]">
-                  {holes.reduce((s, h) => s + (scores[h]?.score || 0), 0) || "—"}
+                  {holes.reduce((s, h) => s + (scores[h] || 0), 0) || "—"}
                 </td>
               </tr>
             </tbody>

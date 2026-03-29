@@ -44,6 +44,14 @@ export default async function EditRoundPage({
     .select("*, profiles(*), hole_scores(*)")
     .eq("round_id", id);
 
+  const { data: courseHoles } = round.course_id
+    ? await supabase
+        .from("course_holes")
+        .select("hole_number, par")
+        .eq("course_id", round.course_id)
+        .order("hole_number", { ascending: true })
+    : { data: [] };
+
   const { data: allProfiles } = await supabase
     .from("profiles")
     .select("id, display_name")
@@ -160,6 +168,7 @@ export default async function EditRoundPage({
           <ScoreEntryForm
             roundId={round.id}
             coursePar={round.courses?.par ?? 72}
+            courseHoles={courseHoles ?? []}
             players={confirmed.map((r) => ({
               player_id: r.player_id,
               display_name: r.profiles?.display_name ?? "Unknown",
