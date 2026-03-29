@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 export default async function LeaderboardPage() {
   const supabase = await createClient();
@@ -83,7 +84,12 @@ export default async function LeaderboardPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3.5">
-                    <span className="font-medium text-white">{entry.display_name}</span>
+                    <Link
+                      href={`/leaderboard/${entry.player_id}`}
+                      className="font-medium text-white hover:text-[#d4af37] transition-colors"
+                    >
+                      {entry.display_name}
+                    </Link>
                     {i === 0 && (
                       <span className="ml-2 text-xs text-[#d4af37] font-medium">
                         Leader
