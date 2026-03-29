@@ -22,13 +22,14 @@ export default async function LeaderboardPage() {
     roundIds.length > 0
       ? await supabase
           .from("scorecards")
-          .select("player_id, total_score, course_handicap, profiles!scorecards_player_id_fkey(display_name)")
+          .select(
+            "player_id, total_score, course_handicap, profiles!scorecards_player_id_fkey(display_name), rounds(courses(par))"
+          )
           .in("round_id", roundIds)
           .not("total_score", "is", null)
       : { data: [] };
 
   const standings = aggregateStandings(scorecards ?? []);
-  const hasNetScores = standings.some((s) => s.net_avg !== null);
 
   return (
     <div className="space-y-6">
@@ -55,21 +56,11 @@ export default async function LeaderboardPage() {
                 <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
                   Rounds
                 </th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
-                  Gross Avg
+                <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
+                  Net to Par
                 </th>
-                {hasNetScores && (
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
-                    Net Avg
-                  </th>
-                )}
-                {!hasNetScores && (
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
-                    Avg
-                  </th>
-                )}
                 <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
-                  Best
+                  Best Round
                 </th>
               </tr>
             </thead>
@@ -92,9 +83,7 @@ export default async function LeaderboardPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3.5">
-                    <span className="font-medium text-white">
-                      {entry.display_name}
-                    </span>
+                    <span className="font-medium text-white">{entry.display_name}</span>
                     {i === 0 && (
                       <span className="ml-2 text-xs text-[#d4af37] font-medium">
                         Leader
@@ -102,23 +91,13 @@ export default async function LeaderboardPage() {
                     )}
                   </td>
                   <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm">
-                    {entry.rounds_played}
+                    {entry.rounds_counted}{entry.rounds_played > entry.rounds_counted ? ` / ${entry.rounds_played}` : ""}
+                  </td>
+                  <td className="px-4 py-3.5 text-right font-semibold text-white">
+                    {formatNetToPar(entry.cumulative_net_to_par)}
                   </td>
                   <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
-                    {entry.gross_avg.toFixed(1)}
-                  </td>
-                  {hasNetScores && (
-                    <td className="px-4 py-3.5 text-right font-semibold text-white">
-                      {entry.net_avg !== null ? entry.net_avg.toFixed(1) : "—"}
-                    </td>
-                  )}
-                  {!hasNetScores && (
-                    <td className="px-4 py-3.5 text-right font-semibold text-white">
-                      {entry.gross_avg.toFixed(1)}
-                    </td>
-                  )}
-                  <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
-                    {entry.best_gross}
+                    {formatNetToPar(entry.best_round)}
                   </td>
                 </tr>
               ))}
@@ -128,12 +107,15 @@ export default async function LeaderboardPage() {
       </div>
 
       <p className="text-xs text-[#6a8870] text-center">
-        {hasNetScores
-          ? "Ranked by net average score · Lower is better"
-          : "Ranked by average score · Lower is better"}
+        Best 5 net scores to par · More rounds played ranks higher · Lower is better
       </p>
     </div>
   );
+}
+
+function formatNetToPar(n: number): string {
+  if (n === 0) return "E";
+  return n > 0 ? `+${n}` : `${n}`;
 }
 
 type ScorecardRow = {
@@ -141,54 +123,54 @@ type ScorecardRow = {
   total_score: number | null;
   course_handicap: number | null;
   profiles: { display_name: string } | null;
+  rounds: { courses: { par: number } | null } | null;
 };
 
 function aggregateStandings(scorecards: ScorecardRow[]) {
   const map = new Map<
     string,
-    {
-      display_name: string;
-      player_id: string;
-      gross_scores: number[];
-      net_scores: number[];
-    }
+    { display_name: string; player_id: string; net_to_pars: number[] }
   >();
 
   for (const sc of scorecards) {
     if (!sc.total_score || !sc.profiles) continue;
+    const coursePar = sc.rounds?.courses?.par;
+    if (coursePar == null) continue;
+
+    const net = sc.course_handicap != null
+      ? sc.total_score - sc.course_handicap
+      : sc.total_score;
+    const netToPar = net - coursePar;
+
     const entry = map.get(sc.player_id);
-    const net = sc.course_handicap != null ? sc.total_score - sc.course_handicap : null;
     if (entry) {
-      entry.gross_scores.push(sc.total_score);
-      if (net !== null) entry.net_scores.push(net);
+      entry.net_to_pars.push(netToPar);
     } else {
       map.set(sc.player_id, {
         display_name: sc.profiles.display_name,
         player_id: sc.player_id,
-        gross_scores: [sc.total_score],
-        net_scores: net !== null ? [net] : [],
+        net_to_pars: [netToPar],
       });
     }
   }
 
   return Array.from(map.values())
     .map((p) => {
-      const gross_avg = p.gross_scores.reduce((a, b) => a + b, 0) / p.gross_scores.length;
-      const net_avg = p.net_scores.length > 0
-        ? p.net_scores.reduce((a, b) => a + b, 0) / p.net_scores.length
-        : null;
+      const sorted = [...p.net_to_pars].sort((a, b) => a - b);
+      const best5 = sorted.slice(0, 5);
+      const cumulative_net_to_par = best5.reduce((a, b) => a + b, 0);
       return {
         player_id: p.player_id,
         display_name: p.display_name,
-        rounds_played: p.gross_scores.length,
-        gross_avg,
-        net_avg,
-        best_gross: Math.min(...p.gross_scores),
+        rounds_played: p.net_to_pars.length,
+        rounds_counted: best5.length,
+        cumulative_net_to_par,
+        best_round: sorted[0] ?? 0,
       };
     })
     .sort((a, b) => {
-      const aSort = a.net_avg ?? a.gross_avg;
-      const bSort = b.net_avg ?? b.gross_avg;
-      return aSort - bSort;
+      // More rounds counted ranks higher; ties broken by cumulative net to par
+      if (b.rounds_counted !== a.rounds_counted) return b.rounds_counted - a.rounds_counted;
+      return a.cumulative_net_to_par - b.cumulative_net_to_par;
     });
 }
