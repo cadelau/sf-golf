@@ -22,13 +22,13 @@ export default async function LeaderboardPage() {
     roundIds.length > 0
       ? await supabase
           .from("scorecards")
-          .select("*, profiles!scorecards_player_id_fkey(*)")
+          .select("player_id, total_score, course_handicap, profiles!scorecards_player_id_fkey(display_name)")
           .in("round_id", roundIds)
           .not("total_score", "is", null)
       : { data: [] };
 
   const standings = aggregateStandings(scorecards ?? []);
-  const hasHandicaps = standings.some((s) => s.handicap !== null);
+  const hasNetScores = standings.some((s) => s.net_avg !== null);
 
   return (
     <div className="space-y-6">
@@ -36,7 +36,6 @@ export default async function LeaderboardPage() {
         <h1 className="text-2xl font-bold text-white">Season Standings</h1>
         <p className="text-[#9ab8a0] text-sm mt-1">{season?.name}</p>
       </div>
-
 
       <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] overflow-hidden">
         {standings.length === 0 ? (
@@ -53,23 +52,18 @@ export default async function LeaderboardPage() {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
                   Player
                 </th>
-                {hasHandicaps && (
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
-                    HCP
-                  </th>
-                )}
                 <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
                   Rounds
                 </th>
                 <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
                   Gross Avg
                 </th>
-                {hasHandicaps && (
+                {hasNetScores && (
                   <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
                     Net Avg
                   </th>
                 )}
-                {!hasHandicaps && (
+                {!hasNetScores && (
                   <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
                     Avg
                   </th>
@@ -107,27 +101,20 @@ export default async function LeaderboardPage() {
                       </span>
                     )}
                   </td>
-                  {hasHandicaps && (
-                    <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
-                      {entry.handicap != null ? entry.handicap.toFixed(1) : "—"}
-                    </td>
-                  )}
                   <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm">
                     {entry.rounds_played}
                   </td>
-                  {hasHandicaps && (
-                    <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
-                      {entry.gross_avg.toFixed(1)}
-                    </td>
-                  )}
-                  {!hasHandicaps && (
-                    <td className="px-4 py-3.5 text-right text-white font-medium">
-                      {entry.gross_avg.toFixed(1)}
-                    </td>
-                  )}
-                  {hasHandicaps && (
+                  <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
+                    {entry.gross_avg.toFixed(1)}
+                  </td>
+                  {hasNetScores && (
                     <td className="px-4 py-3.5 text-right font-semibold text-white">
-                      {entry.net_avg !== null ? entry.net_avg.toFixed(1) : entry.gross_avg.toFixed(1)}
+                      {entry.net_avg !== null ? entry.net_avg.toFixed(1) : "—"}
+                    </td>
+                  )}
+                  {!hasNetScores && (
+                    <td className="px-4 py-3.5 text-right font-semibold text-white">
+                      {entry.gross_avg.toFixed(1)}
                     </td>
                   )}
                   <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
@@ -141,8 +128,8 @@ export default async function LeaderboardPage() {
       </div>
 
       <p className="text-xs text-[#6a8870] text-center">
-        {hasHandicaps
-          ? "Ranked by net average score (gross avg − handicap) · Lower is better"
+        {hasNetScores
+          ? "Ranked by net average score · Lower is better"
           : "Ranked by average score · Lower is better"}
       </p>
     </div>
@@ -152,7 +139,8 @@ export default async function LeaderboardPage() {
 type ScorecardRow = {
   player_id: string;
   total_score: number | null;
-  profiles: { display_name: string; handicap: number | null } | null;
+  course_handicap: number | null;
+  profiles: { display_name: string } | null;
 };
 
 function aggregateStandings(scorecards: ScorecardRow[]) {
@@ -161,39 +149,41 @@ function aggregateStandings(scorecards: ScorecardRow[]) {
     {
       display_name: string;
       player_id: string;
-      handicap: number | null;
-      scores: number[];
+      gross_scores: number[];
+      net_scores: number[];
     }
   >();
 
   for (const sc of scorecards) {
     if (!sc.total_score || !sc.profiles) continue;
-    const existing = map.get(sc.player_id);
-    if (existing) {
-      existing.scores.push(sc.total_score);
+    const entry = map.get(sc.player_id);
+    const net = sc.course_handicap != null ? sc.total_score - sc.course_handicap : null;
+    if (entry) {
+      entry.gross_scores.push(sc.total_score);
+      if (net !== null) entry.net_scores.push(net);
     } else {
       map.set(sc.player_id, {
         display_name: sc.profiles.display_name,
         player_id: sc.player_id,
-        handicap: sc.profiles.handicap,
-        scores: [sc.total_score],
+        gross_scores: [sc.total_score],
+        net_scores: net !== null ? [net] : [],
       });
     }
   }
 
   return Array.from(map.values())
     .map((p) => {
-      const gross_avg = p.scores.reduce((a, b) => a + b, 0) / p.scores.length;
-      const net_avg =
-        p.handicap != null ? gross_avg - p.handicap : null;
+      const gross_avg = p.gross_scores.reduce((a, b) => a + b, 0) / p.gross_scores.length;
+      const net_avg = p.net_scores.length > 0
+        ? p.net_scores.reduce((a, b) => a + b, 0) / p.net_scores.length
+        : null;
       return {
         player_id: p.player_id,
         display_name: p.display_name,
-        handicap: p.handicap,
-        rounds_played: p.scores.length,
+        rounds_played: p.gross_scores.length,
         gross_avg,
         net_avg,
-        best_gross: Math.min(...p.scores),
+        best_gross: Math.min(...p.gross_scores),
       };
     })
     .sort((a, b) => {
