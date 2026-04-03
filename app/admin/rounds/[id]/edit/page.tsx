@@ -66,7 +66,9 @@ export default async function EditRoundPage({
   const confirmed = rsvps?.filter((r) => r.status === "confirmed") ?? [];
   const waitlist = rsvps?.filter((r) => r.status === "waitlist") ?? [];
 
-  const alreadyInRound = new Set(rsvps?.map((r) => r.player_id) ?? []);
+  const alreadyInRound = new Set(
+    rsvps?.map((r) => r.player_id).filter(Boolean) ?? []
+  );
   const availablePlayers = (allProfiles ?? []).filter(
     (p) => !alreadyInRound.has(p.id)
   );
@@ -142,8 +144,13 @@ export default async function EditRoundPage({
                 {rsvp.status}
               </span>
               <span className="text-sm text-white">
-                {rsvp.profiles?.display_name}
+                {rsvp.profiles?.display_name ?? rsvp.guest_name}
               </span>
+              {!rsvp.player_id && (
+                <span className="text-xs text-[#d4af37] border border-[#d4af37]/40 rounded-full px-2 py-0.5 ml-auto">
+                  Guest
+                </span>
+              )}
             </div>
           ))}
           {(rsvps?.length ?? 0) === 0 && (
@@ -169,8 +176,8 @@ export default async function EditRoundPage({
             roundId={round.id}
             confirmed={confirmed.map((r) => ({
               id: r.id,
-              player_id: r.player_id,
-              display_name: r.profiles?.display_name ?? "Unknown",
+              player_id: r.player_id ?? r.id,
+              display_name: r.profiles?.display_name ?? r.guest_name ?? "Unknown",
               tee_time: r.tee_time,
               group_number: r.group_number,
             }))}
@@ -192,10 +199,12 @@ export default async function EditRoundPage({
             roundId={round.id}
             coursePar={round.courses?.par ?? 72}
             courseHoles={courseHoles ?? []}
-            players={confirmed.map((r) => ({
-              player_id: r.player_id,
-              display_name: r.profiles?.display_name ?? "Unknown",
-            }))}
+            players={confirmed
+              .filter((r) => r.player_id !== null)
+              .map((r) => ({
+                player_id: r.player_id!,
+                display_name: r.profiles?.display_name ?? "Unknown",
+              }))}
             existingScorecards={scorecards ?? []}
           />
         </div>

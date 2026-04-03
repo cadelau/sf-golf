@@ -42,7 +42,8 @@ export type Round = {
 export type RoundPlayer = {
   id: string;
   round_id: string;
-  player_id: string;
+  player_id: string | null;
+  guest_name: string | null;
   status: "confirmed" | "waitlist" | "declined";
   tee_time: string | null;
   group_number: number | null;
