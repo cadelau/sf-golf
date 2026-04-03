@@ -165,6 +165,7 @@ function RoundCard({
   confirmedCount,
   isPast,
   userId,
+  canRsvp,
 }: {
   round: {
     id: string;
