@@ -180,6 +180,7 @@ export default async function EditRoundPage({
               display_name: r.profiles?.display_name ?? r.guest_name ?? "Unknown",
               tee_time: r.tee_time,
               group_number: r.group_number,
+              course_handicap: r.course_handicap ?? null,
             }))}
             teeStartTime={round.tee_start_time}
             teeIntervalMinutes={round.tee_interval_minutes}
@@ -204,6 +205,7 @@ export default async function EditRoundPage({
               .map((r) => ({
                 player_id: r.player_id!,
                 display_name: r.profiles?.display_name ?? "Unknown",
+                course_handicap: r.course_handicap ?? null,
               }))}
             existingScorecards={scorecards ?? []}
           />

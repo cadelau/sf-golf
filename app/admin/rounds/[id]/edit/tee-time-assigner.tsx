@@ -10,6 +10,7 @@ type Player = {
   display_name: string;
   tee_time: string | null;
   group_number: number | null;
+  course_handicap: number | null;
 };
 
 function addMinutes(timeStr: string, minutes: number): string {
@@ -48,6 +49,11 @@ export default function TeeTimeAssigner({
       confirmed.map((p) => [p.id, p.tee_time ?? ""])
     )
   );
+  const [handicaps, setHandicaps] = useState<Record<string, number | null>>(
+    Object.fromEntries(
+      confirmed.map((p) => [p.id, p.course_handicap ?? null])
+    )
+  );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -80,6 +86,7 @@ export default function TeeTimeAssigner({
           .update({
             tee_time: teeTime,
             group_number: groupIndex + 1,
+            course_handicap: handicaps[player.id] ?? null,
           })
           .eq("id", player.id);
       }
@@ -128,6 +135,23 @@ export default function TeeTimeAssigner({
             <span className="text-sm font-medium text-white flex-1">
               {player.display_name}
             </span>
+            <div className="flex items-center gap-1.5">
+              <label className="text-xs text-[#6a8870] whitespace-nowrap">HCP</label>
+              <input
+                type="number"
+                value={handicaps[player.id] ?? ""}
+                onChange={(e) =>
+                  setHandicaps((prev) => ({
+                    ...prev,
+                    [player.id]: e.target.value === "" ? null : parseInt(e.target.value),
+                  }))
+                }
+                min={0}
+                max={54}
+                placeholder="—"
+                className="w-14 text-center text-sm bg-[#243d2a] border border-[#2d5035] text-white rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
+              />
+            </div>
             <select
               value={assignments[player.id] ?? ""}
               onChange={(e) =>
@@ -168,8 +192,11 @@ export default function TeeTimeAssigner({
                 </p>
                 <ul className="space-y-1">
                   {players.map((p) => (
-                    <li key={p.id} className="text-sm text-white">
-                      {p.display_name}
+                    <li key={p.id} className="text-sm text-white flex items-center justify-between">
+                      <span>{p.display_name}</span>
+                      {handicaps[p.id] !== null && handicaps[p.id] !== undefined && (
+                        <span className="text-xs text-[#9ab8a0]">HCP {handicaps[p.id]}</span>
+                      )}
                     </li>
                   ))}
                 </ul>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
-type Player = { player_id: string; display_name: string };
+type Player = { player_id: string; display_name: string; course_handicap: number | null };
 type HoleScore = { hole_number: number; par: number; score: number };
 type ExistingScorecard = {
   id: string;
@@ -48,7 +48,8 @@ export default function ScoreEntryForm({
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [courseHandicap, setCourseHandicap] = useState<number | null>(
-    existingMap.get(players[0]?.player_id ?? "")?.course_handicap ?? null
+    existingMap.get(players[0]?.player_id ?? "")?.course_handicap ??
+    players[0]?.course_handicap ?? null
   );
 
   function getInitialScores(): Record<number, number> {
@@ -70,7 +71,8 @@ export default function ScoreEntryForm({
       newScores[i] = ex?.hole_scores.find((h) => h.hole_number === i)?.score ?? 0;
     }
     setScores(newScores);
-    setCourseHandicap(ex?.course_handicap ?? null);
+    const player = players.find((p) => p.player_id === playerId);
+    setCourseHandicap(ex?.course_handicap ?? player?.course_handicap ?? null);
   }
 
   const totalScore = Object.values(scores).reduce((s, v) => s + (v || 0), 0);

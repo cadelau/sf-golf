@@ -143,9 +143,14 @@ export default async function RoundDetailPage({
                           {name[0]?.toUpperCase() ?? "?"}
                         </div>
                         <span className="text-sm font-medium text-white">{name}</span>
-                        {!rsvp.player_id && (
-                          <span className="text-xs text-[#d4af37]/70 ml-auto">Guest</span>
-                        )}
+                        <div className="ml-auto flex items-center gap-2">
+                          {rsvp.course_handicap !== null && (
+                            <span className="text-xs text-[#9ab8a0]">HCP {rsvp.course_handicap}</span>
+                          )}
+                          {!rsvp.player_id && (
+                            <span className="text-xs text-[#d4af37]/70">Guest</span>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -166,9 +171,14 @@ export default async function RoundDetailPage({
                     {name[0]?.toUpperCase() ?? "?"}
                   </div>
                   <span className="text-sm font-medium text-white">{name}</span>
-                  {!rsvp.player_id && (
-                    <span className="text-xs text-[#d4af37]/70 ml-auto">Guest</span>
-                  )}
+                  <div className="ml-auto flex items-center gap-2">
+                    {rsvp.course_handicap !== null && (
+                      <span className="text-xs text-[#9ab8a0]">HCP {rsvp.course_handicap}</span>
+                    )}
+                    {!rsvp.player_id && (
+                      <span className="text-xs text-[#d4af37]/70">Guest</span>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -341,6 +351,7 @@ type RsvpWithProfile = {
   id: string;
   player_id: string | null;
   guest_name: string | null;
+  course_handicap: number | null;
   tee_time: string | null;
   group_number: number | null;
   profiles: { display_name: string } | null;
