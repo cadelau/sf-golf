@@ -132,38 +132,46 @@ export default async function RoundDetailPage({
                     : "Unassigned"}
                 </p>
                 <div className="space-y-1">
-                  {group.players.map((rsvp) => (
-                    <div
-                      key={rsvp.id}
-                      className="flex items-center gap-3 py-2 px-3 bg-[#1a3520] rounded-lg border border-[#2d5035]"
-                    >
-                      <div className="w-7 h-7 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/40 text-[#d4af37] flex items-center justify-center text-xs font-bold flex-shrink-0">
-                        {rsvp.profiles?.display_name?.[0]?.toUpperCase() ?? "?"}
+                  {group.players.map((rsvp) => {
+                    const name = rsvp.profiles?.display_name ?? rsvp.guest_name ?? "?";
+                    return (
+                      <div
+                        key={rsvp.id}
+                        className="flex items-center gap-3 py-2 px-3 bg-[#1a3520] rounded-lg border border-[#2d5035]"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/40 text-[#d4af37] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                          {name[0]?.toUpperCase() ?? "?"}
+                        </div>
+                        <span className="text-sm font-medium text-white">{name}</span>
+                        {!rsvp.player_id && (
+                          <span className="text-xs text-[#d4af37]/70 ml-auto">Guest</span>
+                        )}
                       </div>
-                      <span className="text-sm font-medium text-white">
-                        {rsvp.profiles?.display_name}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div className="space-y-1">
-            {confirmed.map((rsvp) => (
-              <div
-                key={rsvp.id}
-                className="flex items-center gap-3 py-2 px-3 bg-[#1a3520] rounded-lg border border-[#2d5035]"
-              >
-                <div className="w-7 h-7 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/40 text-[#d4af37] flex items-center justify-center text-xs font-bold flex-shrink-0">
-                  {rsvp.profiles?.display_name?.[0]?.toUpperCase() ?? "?"}
+            {confirmed.map((rsvp) => {
+              const name = rsvp.profiles?.display_name ?? rsvp.guest_name ?? "?";
+              return (
+                <div
+                  key={rsvp.id}
+                  className="flex items-center gap-3 py-2 px-3 bg-[#1a3520] rounded-lg border border-[#2d5035]"
+                >
+                  <div className="w-7 h-7 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/40 text-[#d4af37] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    {name[0]?.toUpperCase() ?? "?"}
+                  </div>
+                  <span className="text-sm font-medium text-white">{name}</span>
+                  {!rsvp.player_id && (
+                    <span className="text-xs text-[#d4af37]/70 ml-auto">Guest</span>
+                  )}
                 </div>
-                <span className="text-sm font-medium text-white">
-                  {rsvp.profiles?.display_name}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -331,6 +339,8 @@ export default async function RoundDetailPage({
 
 type RsvpWithProfile = {
   id: string;
+  player_id: string | null;
+  guest_name: string | null;
   tee_time: string | null;
   group_number: number | null;
   profiles: { display_name: string } | null;
