@@ -28,7 +28,7 @@ export default async function PlayersPage() {
   const viewers = players?.filter((p) => p.viewer_only) ?? [];
 
   const playerTable = (list: typeof members, showActions: boolean) => (
-    <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] overflow-hidden">
+    <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] overflow-x-auto">
       <table className="w-full">
         <thead className="bg-[#1a3520] border-b border-[#2d5035]">
           <tr>
@@ -114,7 +114,7 @@ export default async function PlayersPage() {
   );
 
   return (
-    <div className="space-y-8 max-w-2xl">
+    <div className="space-y-8 max-w-4xl">
       <div>
         <h1 className="text-2xl font-bold text-white">Players</h1>
         <p className="text-[#9ab8a0] text-sm mt-1">
