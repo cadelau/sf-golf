@@ -107,6 +107,7 @@ export default async function SchedulePage() {
                   confirmedCount={confirmed}
                   isPast={true}
                   userId={null}
+                  canRsvp={false}
                 />
               );
             })}
