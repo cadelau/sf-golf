@@ -62,7 +62,7 @@ export default function Nav({
                   {profile.display_name}
                 </p>
                 <p className="text-[#6a8870] text-xs leading-tight">
-                  {profile.is_admin ? "Commissioner" : "Member"}
+                  {profile.is_admin ? "Commissioner" : profile.viewer_only ? "Viewer" : "Member"}
                 </p>
               </div>
               <div className="w-9 h-9 rounded-full bg-[#d4af37] text-[#1a3520] flex items-center justify-center text-sm font-bold flex-shrink-0">

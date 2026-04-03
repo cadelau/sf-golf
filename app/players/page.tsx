@@ -11,6 +11,7 @@ export default async function RosterPage() {
   const { data: players } = await supabase
     .from("profiles")
     .select("*")
+    .eq("viewer_only", false)
     .order("display_name");
 
   return (

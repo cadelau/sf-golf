@@ -44,6 +44,11 @@ export default async function SchedulePage() {
   // Build week number map based on full season order (ascending by date)
   const weekNumberMap = new Map((rounds ?? []).map((r, i) => [r.id, i + 1]));
 
+  const { data: currentProfile } = user
+    ? await supabase.from("profiles").select("viewer_only").eq("id", user.id).single()
+    : { data: null };
+  const canRsvp = user !== null && !(currentProfile?.viewer_only ?? true);
+
   const today = new Date().toISOString().split("T")[0];
   const upcoming = rounds?.filter((r) => r.date >= today) ?? [];
   const past = rounds?.filter((r) => r.date < today) ?? [];
@@ -76,6 +81,7 @@ export default async function SchedulePage() {
                   confirmedCount={confirmed}
                   isPast={false}
                   userId={user?.id ?? null}
+                  canRsvp={canRsvp}
                 />
               );
             })}
@@ -173,6 +179,7 @@ function RoundCard({
   confirmedCount: number;
   isPast: boolean;
   userId: string | null;
+  canRsvp: boolean;
 }) {
   return (
     <div className="bg-[#243d2a] border border-[#2d5035] rounded-xl p-5 hover:border-[#d4af37]/40 transition-colors">
@@ -233,7 +240,7 @@ function RoundCard({
       <div className="mt-4 pt-4 border-t border-[#2d5035] flex items-center justify-between gap-4 flex-wrap">
         <SpotsIndicator confirmed={confirmedCount} maxPlayers={round.max_players} />
 
-        {!isPast && userId && (
+        {!isPast && userId && canRsvp && (
           <RsvpButton
             roundId={round.id}
             playerId={userId}

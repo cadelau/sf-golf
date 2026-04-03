@@ -67,10 +67,17 @@ export default async function HomePage() {
       : { data: [] };
   const standings = aggregateStandings(scorecards ?? [], roundParMap);
 
-  // Roster
+  // Current user's viewer status
+  const { data: currentProfile } = user
+    ? await supabase.from("profiles").select("viewer_only").eq("id", user.id).single()
+    : { data: null };
+  const isViewer = currentProfile?.viewer_only ?? false;
+
+  // Roster (full members only)
   const { data: players } = await supabase
     .from("profiles")
     .select("id, display_name, handicap")
+    .eq("viewer_only", false)
     .order("display_name");
 
   return (
@@ -113,7 +120,7 @@ export default async function HomePage() {
                 )}
               </div>
 
-              {user && (
+              {user && !isViewer && (
                 <div className="mt-4">
                   <RsvpButton
                     roundId={upcomingRound.id}

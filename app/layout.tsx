@@ -32,7 +32,8 @@ export default async function RootLayout({
 
     const { count } = await supabase
       .from("profiles")
-      .select("*", { count: "exact", head: true });
+      .select("*", { count: "exact", head: true })
+      .eq("viewer_only", false);
     memberCount = count ?? 0;
   }
 

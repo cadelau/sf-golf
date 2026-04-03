@@ -23,6 +23,11 @@ export default async function RoundDetailPage({
 
   if (!round) notFound();
 
+  const { data: currentProfile } = user
+    ? await supabase.from("profiles").select("viewer_only").eq("id", user.id).single()
+    : { data: null };
+  const canRsvp = user !== null && !(currentProfile?.viewer_only ?? true);
+
   // All RSVPs for this round
   const { data: rsvps } = await supabase
     .from("round_players")
@@ -101,7 +106,7 @@ export default async function RoundDetailPage({
         </div>
 
         {/* RSVP section */}
-        {!round.is_finalized && user && (
+        {!round.is_finalized && canRsvp && (
           <div className="mt-5 pt-5 border-t border-[#2d5035]">
             <p className="text-sm font-medium text-[#9ab8a0] mb-3">
               {myRsvp ? "Update your RSVP:" : "Are you playing?"}
