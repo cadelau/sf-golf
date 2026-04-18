@@ -5,6 +5,7 @@ import { formatDate, formatTime } from "@/lib/utils";
 import TeeTimeAssigner from "./tee-time-assigner";
 import ScoreEntryForm from "./score-entry-form";
 import DeleteRoundButton from "./delete-round-button";
+import RsvpManager from "./rsvp-manager";
 import AddPlayerForm from "./add-player-form";
 import EditRoundDetailsForm from "./edit-round-details-form";
 
@@ -119,52 +120,28 @@ export default async function EditRoundPage({
         />
       </div>
 
-      {/* RSVP Summary */}
+      {/* RSVP Management */}
       <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] p-6">
         <h2 className="font-semibold text-white mb-4">
           RSVPs — {confirmed.length}{round.max_players ? `/${round.max_players}` : ""} confirmed
         </h2>
-        <div className="space-y-1">
-          {rsvps?.map((rsvp) => (
-            <div
-              key={rsvp.id}
-              className="flex items-center gap-3 py-2 px-3 rounded-lg bg-[#1a3520]"
-            >
-              <span
-                className={`text-xs rounded-full px-2 py-0.5 font-medium border ${
-                  rsvp.status === "confirmed"
-                    ? "bg-green-900/40 text-green-300 border-green-800/50"
-                    : rsvp.status === "tentative"
-                    ? "bg-yellow-900/40 text-yellow-300 border-yellow-800/50"
-                    : rsvp.status === "waitlist"
-                    ? "bg-orange-900/40 text-orange-300 border-orange-800/50"
-                    : "bg-[#243d2a] text-[#6a8870] border-[#2d5035]"
-                }`}
-              >
-                {rsvp.status}
-              </span>
-              <span className="text-sm text-white">
-                {rsvp.profiles?.display_name ?? rsvp.guest_name}
-              </span>
-              {!rsvp.player_id && (
-                <span className="text-xs text-[#d4af37] border border-[#d4af37]/40 rounded-full px-2 py-0.5 ml-auto">
-                  Guest
-                </span>
-              )}
-            </div>
-          ))}
-          {(rsvps?.length ?? 0) === 0 && (
-            <p className="text-[#6a8870] text-sm">No RSVPs yet.</p>
-          )}
-        </div>
-
+        <RsvpManager
+          initialRsvps={
+            rsvps?.map((r) => ({
+              id: r.id,
+              player_id: r.player_id ?? null,
+              status: r.status,
+              display_name: r.profiles?.display_name ?? r.guest_name ?? "Unknown",
+              is_guest: !r.player_id,
+            })) ?? []
+          }
+        />
         {waitlist.length > 0 && (
           <p className="text-xs text-yellow-400 mt-3">
             {waitlist.length} on waitlist — they&apos;ll be promoted automatically when
             someone drops
           </p>
         )}
-
         <AddPlayerForm roundId={round.id} availablePlayers={availablePlayers} />
       </div>
 
