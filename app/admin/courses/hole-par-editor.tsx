@@ -48,12 +48,21 @@ export default function HoleParEditor({
       hole_number: i + 1,
       par: pars[i + 1] ?? 4,
     }));
-    const { error: err } = await supabase
+    const { error: holesErr } = await supabase
       .from("course_holes")
       .upsert(rows, { onConflict: "course_id,hole_number" });
+    if (holesErr) {
+      setSaving(false);
+      setError(holesErr.message);
+      return;
+    }
+    const { error: courseErr } = await supabase
+      .from("courses")
+      .update({ par: total })
+      .eq("id", courseId);
     setSaving(false);
-    if (err) {
-      setError(err.message);
+    if (courseErr) {
+      setError(courseErr.message);
     } else {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
