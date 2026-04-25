@@ -41,7 +41,7 @@ export default async function LeaderboardPage() {
       </div>
 
       <p className="text-xs text-[#6a8870] text-center">
-        Best 5 net scores to par · More rounds played ranks higher · Lower is better · Click a player to expand
+        Best 5 net scores to par · Sorted best to worst · Lower aggregate is better · Click a player to expand
       </p>
     </div>
   );

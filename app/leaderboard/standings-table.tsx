@@ -33,6 +33,33 @@ function netToParColor(n: number): string {
   return "text-blue-400";
 }
 
+function pipBg(n: number): string {
+  if (n < 0) return "bg-red-900/40 border-red-800/50";
+  if (n === 0) return "bg-[#1a3520] border-[#3d6645]";
+  return "bg-blue-900/40 border-blue-800/50";
+}
+
+function ScorePips({ rounds }: { rounds: RoundDetail[] }) {
+  const counting = [...rounds.filter((r) => r.counts)].sort((a, b) => a.netToPar - b.netToPar);
+  const slots = Array.from({ length: 5 }, (_, i) => counting[i] ?? null);
+  return (
+    <div className="flex gap-1 mt-1.5">
+      {slots.map((r, i) =>
+        r ? (
+          <span
+            key={i}
+            className={`inline-flex items-center justify-center text-xs font-semibold px-1 py-0.5 rounded border w-8 ${pipBg(r.netToPar)} ${netToParColor(r.netToPar)}`}
+          >
+            {formatNetToPar(r.netToPar)}
+          </span>
+        ) : (
+          <span key={i} className="inline-flex w-8 h-[22px] rounded border border-dashed border-[#2d5035]" />
+        )
+      )}
+    </div>
+  );
+}
+
 export default function StandingsTable({ standings }: { standings: StandingEntry[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -91,10 +118,13 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
                   </span>
                 </td>
                 <td className="px-4 py-3.5">
-                  <span className="font-medium text-white">{entry.display_name}</span>
-                  {i === 0 && (
-                    <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
-                  )}
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-medium text-white">{entry.display_name}</span>
+                    {i === 0 && (
+                      <span className="text-xs text-[#d4af37] font-medium">Leader</span>
+                    )}
+                  </div>
+                  <ScorePips rounds={entry.rounds} />
                 </td>
                 <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm">
                   {entry.rounds_counted}
