@@ -349,8 +349,5 @@ function aggregateStandings(scorecards: ScorecardRow[], roundParMap: Map<string,
         cumulative_net_to_par: best5.reduce((a, b) => a + b, 0),
       };
     })
-    .sort((a, b) => {
-      if (b.rounds_counted !== a.rounds_counted) return b.rounds_counted - a.rounds_counted;
-      return a.cumulative_net_to_par - b.cumulative_net_to_par;
-    });
+    .sort((a, b) => a.cumulative_net_to_par - b.cumulative_net_to_par);
 }
