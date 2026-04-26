@@ -78,13 +78,13 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
           <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-10">
             #
           </th>
-          <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
+          <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide whitespace-nowrap">
             Player
           </th>
-          <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-24">
+          <th className="text-right px-3 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-20 whitespace-nowrap">
             Net to Par
           </th>
-          <th className="px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
+          <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
             Rounds
           </th>
           <th className="w-8" />
@@ -114,19 +114,21 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
                     {i + 1}
                   </span>
                 </td>
-                <td className="px-4 py-3.5">
+                <td className="px-4 py-3.5 whitespace-nowrap">
                   <span className="font-medium text-white">{entry.display_name}</span>
                   {i === 0 && (
                     <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
                   )}
                 </td>
-                <td className="px-4 py-3.5 text-right">
+                <td className="px-3 py-3.5 text-right whitespace-nowrap">
                   <span className={`text-lg font-bold tabular-nums ${netToParColor(entry.cumulative_net_to_par)}`}>
                     {formatNetToPar(entry.cumulative_net_to_par)}
                   </span>
                 </td>
                 <td className="px-4 py-3.5">
-                  <ScorePips rounds={entry.rounds} />
+                  <div className="flex justify-center">
+                    <ScorePips rounds={entry.rounds} />
+                  </div>
                 </td>
                 <td className="px-3 py-3.5 text-center text-[#6a8870] text-xs">
                   {isExpanded ? "▲" : "▼"}
