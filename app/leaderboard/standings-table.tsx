@@ -30,13 +30,13 @@ function formatNetToPar(n: number): string {
 function netToParColor(n: number): string {
   if (n < 0) return "text-green-400";
   if (n === 0) return "text-[#9ab8a0]";
-  return "text-red-400";
+  return "text-white";
 }
 
 function pipClasses(n: number): string {
   if (n < 0) return "bg-green-900/50 border-green-500 text-green-400";
   if (n === 0) return "bg-[#1a3520] border-[#4a7a50] text-[#9ab8a0]";
-  return "bg-red-900/50 border-red-500 text-red-400";
+  return "bg-[#243d2a] border-[#3d5c42] text-white";
 }
 
 function ScorePips({ rounds }: { rounds: RoundDetail[] }) {
@@ -78,11 +78,11 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
           <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-10">
             #
           </th>
-          <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-24">
-            Net to Par
-          </th>
           <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
             Player
+          </th>
+          <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-24">
+            Net to Par
           </th>
           <th className="px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
             Rounds
@@ -115,15 +115,15 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
                   </span>
                 </td>
                 <td className="px-4 py-3.5">
-                  <span className={`text-lg font-bold tabular-nums ${netToParColor(entry.cumulative_net_to_par)}`}>
-                    {formatNetToPar(entry.cumulative_net_to_par)}
-                  </span>
-                </td>
-                <td className="px-4 py-3.5">
                   <span className="font-medium text-white">{entry.display_name}</span>
                   {i === 0 && (
                     <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
                   )}
+                </td>
+                <td className="px-4 py-3.5 text-right">
+                  <span className={`text-lg font-bold tabular-nums ${netToParColor(entry.cumulative_net_to_par)}`}>
+                    {formatNetToPar(entry.cumulative_net_to_par)}
+                  </span>
                 </td>
                 <td className="px-4 py-3.5">
                   <ScorePips rounds={entry.rounds} />
