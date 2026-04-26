@@ -28,32 +28,32 @@ function formatNetToPar(n: number): string {
 }
 
 function netToParColor(n: number): string {
-  if (n < 0) return "text-red-400";
+  if (n < 0) return "text-green-400";
   if (n === 0) return "text-[#9ab8a0]";
-  return "text-blue-400";
+  return "text-red-400";
 }
 
-function pipBg(n: number): string {
-  if (n < 0) return "bg-red-900/40 border-red-800/50";
-  if (n === 0) return "bg-[#1a3520] border-[#3d6645]";
-  return "bg-blue-900/40 border-blue-800/50";
+function pipClasses(n: number): string {
+  if (n < 0) return "bg-green-900/50 border-green-500 text-green-400";
+  if (n === 0) return "bg-[#1a3520] border-[#4a7a50] text-[#9ab8a0]";
+  return "bg-red-900/50 border-red-500 text-red-400";
 }
 
 function ScorePips({ rounds }: { rounds: RoundDetail[] }) {
   const counting = [...rounds.filter((r) => r.counts)].sort((a, b) => a.netToPar - b.netToPar);
   const slots = Array.from({ length: 5 }, (_, i) => counting[i] ?? null);
   return (
-    <div className="flex gap-1 mt-1.5">
+    <div className="flex gap-1.5">
       {slots.map((r, i) =>
         r ? (
           <span
             key={i}
-            className={`inline-flex items-center justify-center text-xs font-semibold px-1 py-0.5 rounded border w-8 ${pipBg(r.netToPar)} ${netToParColor(r.netToPar)}`}
+            className={`inline-flex items-center justify-center text-xs font-semibold w-8 h-8 rounded-full border-2 ${pipClasses(r.netToPar)}`}
           >
             {formatNetToPar(r.netToPar)}
           </span>
         ) : (
-          <span key={i} className="inline-flex w-8 h-[22px] rounded border border-dashed border-[#2d5035]" />
+          <span key={i} className="inline-flex w-8 h-8 rounded-full border-2 border-dashed border-[#3d5c42]" />
         )
       )}
     </div>
@@ -78,17 +78,14 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
           <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-10">
             #
           </th>
+          <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-24">
+            Net to Par
+          </th>
           <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
             Player
           </th>
-          <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
+          <th className="px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
             Rounds
-          </th>
-          <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
-            Net to Par
-          </th>
-          <th className="text-right px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
-            Best Round
           </th>
           <th className="w-8" />
         </tr>
@@ -118,23 +115,18 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
                   </span>
                 </td>
                 <td className="px-4 py-3.5">
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-medium text-white">{entry.display_name}</span>
-                    {i === 0 && (
-                      <span className="text-xs text-[#d4af37] font-medium">Leader</span>
-                    )}
-                  </div>
+                  <span className={`text-lg font-bold tabular-nums ${netToParColor(entry.cumulative_net_to_par)}`}>
+                    {formatNetToPar(entry.cumulative_net_to_par)}
+                  </span>
+                </td>
+                <td className="px-4 py-3.5">
+                  <span className="font-medium text-white">{entry.display_name}</span>
+                  {i === 0 && (
+                    <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
+                  )}
+                </td>
+                <td className="px-4 py-3.5">
                   <ScorePips rounds={entry.rounds} />
-                </td>
-                <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm">
-                  {entry.rounds_counted}
-                  {entry.rounds_played > entry.rounds_counted ? ` / ${entry.rounds_played}` : ""}
-                </td>
-                <td className="px-4 py-3.5 text-right font-semibold text-white">
-                  {formatNetToPar(entry.cumulative_net_to_par)}
-                </td>
-                <td className="px-4 py-3.5 text-right text-[#9ab8a0] text-sm hidden sm:table-cell">
-                  {formatNetToPar(entry.best_round)}
                 </td>
                 <td className="px-3 py-3.5 text-center text-[#6a8870] text-xs">
                   {isExpanded ? "▲" : "▼"}
@@ -143,7 +135,7 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
 
               {isExpanded && (
                 <tr className="border-t border-[#2d5035]">
-                  <td colSpan={6} className="bg-[#1a3520] px-4 py-3">
+                  <td colSpan={5} className="bg-[#1a3520] px-4 py-3">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-[#6a8870] text-xs uppercase tracking-wide">
