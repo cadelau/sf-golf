@@ -4,11 +4,16 @@ import StandingsTable, { type StandingEntry, type RoundDetail } from "./standing
 export default async function LeaderboardPage() {
   const supabase = await createClient();
 
-  const { data: season } = await supabase
-    .from("seasons")
-    .select("*")
-    .eq("is_active", true)
-    .single();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const [{ data: season }, { data: profile }] = await Promise.all([
+    supabase.from("seasons").select("*").eq("is_active", true).single(),
+    user
+      ? supabase.from("profiles").select("is_admin").eq("id", user.id).single()
+      : Promise.resolve({ data: null }),
+  ]);
+
+  const isAdmin = profile?.is_admin ?? false;
 
   const { data: roundRows } = season
     ? await supabase.from("rounds").select("id").eq("season_id", season.id)
@@ -16,16 +21,25 @@ export default async function LeaderboardPage() {
 
   const roundIds = roundRows?.map((r) => r.id) ?? [];
 
-  const { data: scorecards } =
+  const [{ data: scorecards }, { data: paymentRows }] = await Promise.all([
     roundIds.length > 0
-      ? await supabase
+      ? supabase
           .from("scorecards")
           .select(
             "player_id, total_score, course_handicap, profiles!scorecards_player_id_fkey(display_name), rounds(date, courses(name, par))"
           )
           .in("round_id", roundIds)
           .not("total_score", "is", null)
-      : { data: [] };
+      : Promise.resolve({ data: [] }),
+    isAdmin && season
+      ? supabase.from("season_payments").select("player_id, has_paid").eq("season_id", season.id)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const payments: Record<string, boolean> = {};
+  for (const p of paymentRows ?? []) {
+    payments[p.player_id] = p.has_paid;
+  }
 
   const standings = aggregateStandings(scorecards ?? []);
 
@@ -37,7 +51,12 @@ export default async function LeaderboardPage() {
       </div>
 
       <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] overflow-hidden">
-        <StandingsTable standings={standings} />
+        <StandingsTable
+          standings={standings}
+          isAdmin={isAdmin}
+          seasonId={season?.id ?? ""}
+          payments={payments}
+        />
       </div>
 
       <p className="text-xs text-[#6a8870] text-center">

@@ -2,6 +2,7 @@
 
 import { useState, Fragment } from "react";
 import { formatDate } from "@/lib/utils";
+import PayToggle from "./pay-toggle";
 
 export type RoundDetail = {
   date: string;
@@ -58,7 +59,17 @@ function ScorePips({ rounds, small = false }: { rounds: RoundDetail[]; small?: b
   );
 }
 
-export default function StandingsTable({ standings }: { standings: StandingEntry[] }) {
+export default function StandingsTable({
+  standings,
+  isAdmin = false,
+  seasonId = "",
+  payments = {},
+}: {
+  standings: StandingEntry[];
+  isAdmin?: boolean;
+  seasonId?: string;
+  payments?: Record<string, boolean>;
+}) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (standings.length === 0) {
@@ -85,6 +96,11 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
           <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
             Rounds
           </th>
+          {isAdmin && (
+            <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-16">
+              Buy-In
+            </th>
+          )}
           <th className="w-8" />
         </tr>
       </thead>
@@ -131,6 +147,15 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
                     <ScorePips rounds={entry.rounds} />
                   </div>
                 </td>
+                {isAdmin && (
+                  <td className="px-4 py-3.5 text-center">
+                    <PayToggle
+                      seasonId={seasonId}
+                      playerId={entry.player_id}
+                      initialPaid={payments[entry.player_id] ?? false}
+                    />
+                  </td>
+                )}
                 <td className="px-3 py-3.5 text-center text-[#6a8870] text-xs">
                   {isExpanded ? "▲" : "▼"}
                 </td>
@@ -138,7 +163,7 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
 
               {isExpanded && (
                 <tr className="border-t border-[#2d5035]">
-                  <td colSpan={5} className="bg-[#1a3520] px-4 py-3">
+                  <td colSpan={isAdmin ? 6 : 5} className="bg-[#1a3520] px-4 py-3">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-[#6a8870] text-xs uppercase tracking-wide">
