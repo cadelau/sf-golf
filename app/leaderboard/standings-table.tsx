@@ -33,27 +33,25 @@ function netToParColor(n: number): string {
   return "text-white";
 }
 
-function pipClasses(n: number): string {
-  if (n < 0) return "bg-green-900/50 border-green-500 text-green-400";
-  if (n === 0) return "bg-[#1a3520] border-[#4a7a50] text-[#9ab8a0]";
-  return "bg-[#243d2a] border-[#3d5c42] text-white";
-}
-
-function ScorePips({ rounds }: { rounds: RoundDetail[] }) {
+function ScorePips({ rounds, small = false }: { rounds: RoundDetail[]; small?: boolean }) {
   const counting = [...rounds.filter((r) => r.counts)].sort((a, b) => a.netToPar - b.netToPar);
+  const qualified = counting.length === 5;
   const slots = Array.from({ length: 5 }, (_, i) => counting[i] ?? null);
+  const size = small ? "w-7 h-7" : "w-8 h-8";
+  const filledBorder = qualified ? "border-green-500" : "border-[#4a6a50]";
+  const emptyBorder = qualified ? "border-green-500/40" : "border-[#3d5c42]";
   return (
     <div className="flex gap-1.5">
       {slots.map((r, i) =>
         r ? (
           <span
             key={i}
-            className={`inline-flex items-center justify-center text-xs font-semibold w-8 h-8 rounded-full border-2 ${pipClasses(r.netToPar)}`}
+            className={`inline-flex items-center justify-center text-xs font-semibold rounded-full border-2 bg-[#1e3824] text-white ${size} ${filledBorder}`}
           >
             {formatNetToPar(r.netToPar)}
           </span>
         ) : (
-          <span key={i} className="inline-flex w-8 h-8 rounded-full border-2 border-dashed border-[#3d5c42]" />
+          <span key={i} className={`inline-flex rounded-full border-2 border-dashed ${size} ${emptyBorder}`} />
         )
       )}
     </div>
@@ -84,7 +82,7 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
           <th className="text-right px-3 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-20 whitespace-nowrap">
             Net to Par
           </th>
-          <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
+          <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
             Rounds
           </th>
           <th className="w-8" />
@@ -119,13 +117,16 @@ export default function StandingsTable({ standings }: { standings: StandingEntry
                   {i === 0 && (
                     <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
                   )}
+                  <div className="mt-1.5 sm:hidden">
+                    <ScorePips rounds={entry.rounds} small />
+                  </div>
                 </td>
                 <td className="px-3 py-3.5 text-right whitespace-nowrap">
                   <span className={`text-lg font-bold tabular-nums ${netToParColor(entry.cumulative_net_to_par)}`}>
                     {formatNetToPar(entry.cumulative_net_to_par)}
                   </span>
                 </td>
-                <td className="px-4 py-3.5">
+                <td className="px-4 py-3.5 hidden sm:table-cell">
                   <div className="flex justify-center">
                     <ScorePips rounds={entry.rounds} />
                   </div>
