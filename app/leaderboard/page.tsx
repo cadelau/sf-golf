@@ -129,5 +129,9 @@ function aggregateStandings(scorecards: ScorecardRow[]): StandingEntry[] {
         rounds,
       } satisfies StandingEntry;
     })
-    .sort((a, b) => a.cumulative_net_to_par - b.cumulative_net_to_par);
+    .sort((a, b) => {
+      if (a.cumulative_net_to_par !== b.cumulative_net_to_par)
+        return a.cumulative_net_to_par - b.cumulative_net_to_par;
+      return b.rounds_played - a.rounds_played;
+    });
 }
