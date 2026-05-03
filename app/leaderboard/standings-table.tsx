@@ -224,7 +224,7 @@ export default function StandingsTable({
 
                 {isExpanded && (
                   <tr className="border-t border-[#2d5035]">
-                    <td colSpan={5} className="bg-[#1a3520] py-3">
+                    <td colSpan={5} className="bg-[#1a3520] py-3 overflow-hidden">
                       <div className="overflow-x-auto px-4">
                       <table className="text-sm w-full min-w-[340px]">
                         <thead>
