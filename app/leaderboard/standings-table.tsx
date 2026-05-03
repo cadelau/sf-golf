@@ -148,7 +148,7 @@ export default function StandingsTable({
             <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
               Player
             </th>
-            <th className="text-right pr-4 pl-2 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-28">
+            <th className="text-right pr-4 pl-2 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-24">
               Net to Par
             </th>
             <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-64 hidden sm:table-cell">
@@ -187,7 +187,7 @@ export default function StandingsTable({
                     </span>
                   </td>
                   <td className="px-4 py-3.5 overflow-hidden">
-                    <span className="text-base font-semibold text-white">{entry.display_name}</span>
+                    <span className="text-base font-semibold text-white whitespace-nowrap">{entry.display_name}</span>
                     {i === 0 && (
                       <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
                     )}
