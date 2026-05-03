@@ -60,7 +60,7 @@ function ScorePips({ rounds, countedN, small = false }: {
 }) {
   const sorted = [...rounds].sort((a, b) => a.netToPar - b.netToPar);
   const qualified = sorted.length >= countedN;
-  const size = small ? "w-6 h-6" : "w-7 h-7";
+  const size = small ? "w-8 h-8" : "w-7 h-7";
 
   const slots = Array.from({ length: 10 }, (_, i) => {
     const r = sorted[i];
@@ -155,7 +155,7 @@ export default function StandingsTable({
               Rounds
             </th>
             {isAdmin && (
-              <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-16">
+              <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-16 hidden sm:table-cell">
                 Buy-In
               </th>
             )}
@@ -187,7 +187,7 @@ export default function StandingsTable({
                     </span>
                   </td>
                   <td className="px-4 py-3.5">
-                    <span className="font-medium text-white whitespace-nowrap">{entry.display_name}</span>
+                    <span className="text-base font-semibold text-white whitespace-nowrap">{entry.display_name}</span>
                     {i === 0 && (
                       <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
                     )}
@@ -206,7 +206,7 @@ export default function StandingsTable({
                     </div>
                   </td>
                   {isAdmin && (
-                    <td className="px-4 py-3.5 text-center">
+                    <td className="px-4 py-3.5 text-center hidden sm:table-cell">
                       <PayToggle
                         seasonId={seasonId}
                         playerId={entry.player_id}
@@ -221,7 +221,7 @@ export default function StandingsTable({
 
                 {isExpanded && (
                   <tr className="border-t border-[#2d5035]">
-                    <td colSpan={isAdmin ? 6 : 5} className="bg-[#1a3520] px-4 py-3">
+                    <td colSpan={5} className="bg-[#1a3520] px-4 py-3">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="text-[#6a8870] text-xs uppercase tracking-wide">
