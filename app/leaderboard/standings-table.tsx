@@ -148,7 +148,7 @@ export default function StandingsTable({
             <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide whitespace-nowrap">
               Player
             </th>
-            <th className="text-right px-3 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-20 whitespace-nowrap">
+            <th className="text-right pl-3 pr-6 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-20 whitespace-nowrap">
               Net to Par
             </th>
             <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
@@ -195,7 +195,7 @@ export default function StandingsTable({
                       <ScorePips rounds={entry.rounds} countedN={countedN} small />
                     </div>
                   </td>
-                  <td className="px-3 py-3.5 text-right whitespace-nowrap">
+                  <td className="pl-3 pr-6 py-3.5 text-right whitespace-nowrap">
                     <span className={`text-lg font-bold tabular-nums ${netToParColor(entry.cumulative_net_to_par)}`}>
                       {formatNetToPar(entry.cumulative_net_to_par)}
                     </span>
