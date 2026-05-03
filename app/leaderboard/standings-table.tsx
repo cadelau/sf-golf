@@ -214,7 +214,7 @@ export default function StandingsTable({
                       />
                     </td>
                   )}
-                  <td className="px-3 py-3.5 text-center text-[#6a8870] text-xs">
+                  <td className="pl-3 pr-4 py-3.5 text-center text-[#6a8870] text-xs">
                     {isExpanded ? "▲" : "▼"}
                   </td>
                 </tr>
