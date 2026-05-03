@@ -32,7 +32,6 @@ export default function ScoreEntryForm({
   const supabase = createClient();
   const router = useRouter();
 
-  // Build canonical par per hole from course configuration
   const holePars: Record<number, number> = {};
   for (let i = 1; i <= 18; i++) {
     const configured = courseHoles.find((h) => h.hole_number === i);
@@ -41,15 +40,17 @@ export default function ScoreEntryForm({
 
   const existingMap = new Map(existingScorecards.map((sc) => [sc.player_id, sc]));
 
-  const [selectedPlayer, setSelectedPlayer] = useState<string>(
-    players[0]?.player_id ?? ""
-  );
+  const [mode, setMode] = useState<"total" | "holes">("holes");
+  const [selectedPlayer, setSelectedPlayer] = useState<string>(players[0]?.player_id ?? "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [courseHandicap, setCourseHandicap] = useState<number | null>(
     existingMap.get(players[0]?.player_id ?? "")?.course_handicap ??
     players[0]?.course_handicap ?? null
+  );
+  const [manualTotal, setManualTotal] = useState<number | null>(
+    existingMap.get(players[0]?.player_id ?? "")?.total_score ?? null
   );
 
   function getInitialScores(): Record<number, number> {
@@ -73,11 +74,14 @@ export default function ScoreEntryForm({
     setScores(newScores);
     const player = players.find((p) => p.player_id === playerId);
     setCourseHandicap(ex?.course_handicap ?? player?.course_handicap ?? null);
+    setManualTotal(ex?.total_score ?? null);
   }
 
-  const totalScore = Object.values(scores).reduce((s, v) => s + (v || 0), 0);
+  const holeTotal = Object.values(scores).reduce((s, v) => s + (v || 0), 0);
   const totalPar = Object.values(holePars).reduce((s, p) => s + p, 0);
-  const netScore = totalScore > 0 && courseHandicap !== null ? totalScore - courseHandicap : null;
+  const activeTotal = mode === "total" ? (manualTotal ?? 0) : holeTotal;
+  const netScore = activeTotal > 0 && courseHandicap !== null ? activeTotal - courseHandicap : null;
+  const canSave = mode === "total" ? (manualTotal !== null && manualTotal > 0) : holeTotal > 0;
 
   async function handleSave() {
     setSaving(true);
@@ -89,7 +93,7 @@ export default function ScoreEntryForm({
           {
             round_id: roundId,
             player_id: selectedPlayer,
-            total_score: totalScore,
+            total_score: activeTotal,
             course_handicap: courseHandicap,
           },
           { onConflict: "round_id,player_id" }
@@ -99,18 +103,18 @@ export default function ScoreEntryForm({
 
       if (scError) throw scError;
 
-      const holeScoreRows = Object.entries(scores).map(([hole, score]) => ({
-        scorecard_id: sc.id,
-        hole_number: parseInt(hole),
-        par: holePars[parseInt(hole)] ?? 4,
-        score,
-      }));
-
-      const { error: hsError } = await supabase
-        .from("hole_scores")
-        .upsert(holeScoreRows, { onConflict: "scorecard_id,hole_number" });
-
-      if (hsError) throw hsError;
+      if (mode === "holes") {
+        const holeScoreRows = Object.entries(scores).map(([hole, score]) => ({
+          scorecard_id: sc.id,
+          hole_number: parseInt(hole),
+          par: holePars[parseInt(hole)] ?? 4,
+          score,
+        }));
+        const { error: hsError } = await supabase
+          .from("hole_scores")
+          .upsert(holeScoreRows, { onConflict: "scorecard_id,hole_number" });
+        if (hsError) throw hsError;
+      }
 
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -124,7 +128,6 @@ export default function ScoreEntryForm({
 
   const front9 = Array.from({ length: 9 }, (_, i) => i + 1);
   const back9 = Array.from({ length: 9 }, (_, i) => i + 10);
-
   const hasCourseHoles = courseHoles.length > 0;
 
   return (
@@ -144,6 +147,33 @@ export default function ScoreEntryForm({
         </div>
       )}
 
+      {/* Mode toggle */}
+      <div className="flex rounded-lg border border-[#2d5035] overflow-hidden w-fit">
+        <button
+          type="button"
+          onClick={() => setMode("holes")}
+          className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+            mode === "holes"
+              ? "bg-[#2d5035] text-white"
+              : "bg-transparent text-[#9ab8a0] hover:text-white"
+          }`}
+        >
+          Hole by hole
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("total")}
+          className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+            mode === "total"
+              ? "bg-[#2d5035] text-white"
+              : "bg-transparent text-[#9ab8a0] hover:text-white"
+          }`}
+        >
+          Total score
+        </button>
+      </div>
+
+      {/* Controls row */}
       <div className="flex items-center gap-3 flex-wrap">
         <select
           value={selectedPlayer}
@@ -157,6 +187,7 @@ export default function ScoreEntryForm({
             </option>
           ))}
         </select>
+
         <div className="flex items-center gap-1.5">
           <label className="text-xs text-[#9ab8a0] whitespace-nowrap">Course HCP</label>
           <input
@@ -171,11 +202,31 @@ export default function ScoreEntryForm({
             className="w-16 text-center text-sm bg-[#1a3520] border border-[#2d5035] text-white rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
           />
         </div>
+
+        {mode === "total" && (
+          <div className="flex items-center gap-1.5">
+            <label className="text-xs text-[#9ab8a0] whitespace-nowrap">Total Score</label>
+            <input
+              type="number"
+              value={manualTotal ?? ""}
+              onChange={(e) =>
+                setManualTotal(e.target.value === "" ? null : parseInt(e.target.value))
+              }
+              min={18}
+              max={200}
+              placeholder="—"
+              className="w-20 text-center text-sm bg-[#1a3520] border border-[#2d5035] text-white rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
+            />
+          </div>
+        )}
+
         <div className="flex items-center gap-2 ml-auto">
-          <span className="text-sm font-semibold text-white">
-            Gross: {totalScore || "—"} ({totalScore - totalPar > 0 ? "+" : ""}
-            {totalScore ? totalScore - totalPar : "—"})
-          </span>
+          {activeTotal > 0 && (
+            <span className="text-sm font-semibold text-white">
+              Gross: {activeTotal} ({activeTotal - totalPar > 0 ? "+" : ""}
+              {activeTotal - totalPar})
+            </span>
+          )}
           {netScore !== null && (
             <span className="text-sm font-semibold text-[#d4af37]">
               Net: {netScore}
@@ -183,7 +234,7 @@ export default function ScoreEntryForm({
           )}
           <button
             onClick={handleSave}
-            disabled={saving || totalScore === 0}
+            disabled={saving || !canSave}
             type="button"
             className="px-4 py-2 bg-[#d4af37] text-[#1a3520] rounded-lg text-sm font-bold hover:bg-[#e8c84a] transition-colors disabled:opacity-50"
           >
@@ -192,8 +243,8 @@ export default function ScoreEntryForm({
         </div>
       </div>
 
-      {/* Score grid */}
-      {[front9, back9].map((holes, halfIndex) => (
+      {/* Hole-by-hole grid */}
+      {mode === "holes" && [front9, back9].map((holes, halfIndex) => (
         <div key={halfIndex} className="overflow-x-auto">
           <p className="text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide mb-2">
             {halfIndex === 0 ? "Front 9" : "Back 9"}
