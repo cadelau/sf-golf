@@ -23,6 +23,9 @@ export type StandingEntry = {
   rounds: RoundDetail[];
 };
 
+type Mode = "top4" | "drop1" | "drop2";
+const COUNT: Record<Mode, number> = { top4: 4, drop1: 3, drop2: 2 };
+
 function formatNetToPar(n: number): string {
   if (n === 0) return "E";
   return n > 0 ? `+${n}` : `${n}`;
@@ -34,27 +37,64 @@ function netToParColor(n: number): string {
   return "text-white";
 }
 
-function ScorePips({ rounds, small = false }: { rounds: RoundDetail[]; small?: boolean }) {
-  const counting = [...rounds.filter((r) => r.counts)].sort((a, b) => a.netToPar - b.netToPar);
-  const qualified = counting.length === 5;
-  const slots = Array.from({ length: 5 }, (_, i) => counting[i] ?? null);
-  const size = small ? "w-7 h-7" : "w-8 h-8";
-  const filledBorder = qualified ? "border-green-500" : "border-[#4a6a50]";
-  const emptyBorder = qualified ? "border-green-500/40" : "border-[#3d5c42]";
+function recomputeStandings(standings: StandingEntry[], mode: Mode): StandingEntry[] {
+  const n = COUNT[mode];
+  return standings
+    .map((entry) => {
+      const sorted = [...entry.rounds].sort((a, b) => a.netToPar - b.netToPar);
+      const best = sorted.slice(0, n);
+      const cumulative_net_to_par = best.reduce((sum, r) => sum + r.netToPar, 0);
+      return { ...entry, cumulative_net_to_par };
+    })
+    .sort((a, b) => {
+      if (a.cumulative_net_to_par !== b.cumulative_net_to_par)
+        return a.cumulative_net_to_par - b.cumulative_net_to_par;
+      return b.rounds_played - a.rounds_played;
+    });
+}
+
+function ScorePips({ rounds, countedN, small = false }: {
+  rounds: RoundDetail[];
+  countedN: number;
+  small?: boolean;
+}) {
+  const sorted = [...rounds].sort((a, b) => a.netToPar - b.netToPar);
+  const qualified = sorted.length >= countedN;
+  const size = small ? "w-6 h-6" : "w-7 h-7";
+
+  const slots = Array.from({ length: 10 }, (_, i) => {
+    const r = sorted[i];
+    if (!r) return null;
+    return { ...r, counts: i < countedN };
+  });
+
   return (
-    <div className="flex gap-1.5">
-      {slots.map((r, i) =>
-        r ? (
+    <div className="flex gap-1 flex-wrap">
+      {slots.map((r, i) => {
+        if (!r) {
+          return (
+            <span key={i} className={`inline-flex rounded-full border-2 border-dashed border-[#2d3d2f] ${size}`} />
+          );
+        }
+        if (r.counts) {
+          return (
+            <span
+              key={i}
+              className={`inline-flex items-center justify-center text-xs font-semibold rounded-full border-2 bg-[#1e3824] text-white ${size} ${qualified ? "border-green-500" : "border-[#4a6a50]"}`}
+            >
+              {formatNetToPar(r.netToPar)}
+            </span>
+          );
+        }
+        return (
           <span
             key={i}
-            className={`inline-flex items-center justify-center text-xs font-semibold rounded-full border-2 bg-[#1e3824] text-white ${size} ${filledBorder}`}
+            className={`inline-flex items-center justify-center text-xs font-semibold rounded-full border-2 bg-[#151f16] text-[#4a6a50] border-[#2a3a2c] ${size}`}
           >
             {formatNetToPar(r.netToPar)}
           </span>
-        ) : (
-          <span key={i} className={`inline-flex rounded-full border-2 border-dashed ${size} ${emptyBorder}`} />
-        )
-      )}
+        );
+      })}
     </div>
   );
 }
@@ -71,6 +111,10 @@ export default function StandingsTable({
   payments?: Record<string, boolean>;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [mode, setMode] = useState<Mode>("top4");
+
+  const displayed = recomputeStandings(standings, mode);
+  const countedN = COUNT[mode];
 
   if (standings.length === 0) {
     return (
@@ -81,127 +125,142 @@ export default function StandingsTable({
   }
 
   return (
-    <table className="w-full">
-      <thead className="bg-[#1a3520] border-b border-[#2d5035]">
-        <tr>
-          <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-10">
-            #
-          </th>
-          <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide whitespace-nowrap">
-            Player
-          </th>
-          <th className="text-right px-3 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-20 whitespace-nowrap">
-            Net to Par
-          </th>
-          <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
-            Rounds
-          </th>
-          {isAdmin && (
-            <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-16">
-              Buy-In
-            </th>
-          )}
-          <th className="w-8" />
-        </tr>
-      </thead>
-      <tbody>
-        {standings.map((entry, i) => {
-          const isExpanded = expandedId === entry.player_id;
-          return (
-            <Fragment key={entry.player_id}>
-              <tr
-                onClick={() => setExpandedId(isExpanded ? null : entry.player_id)}
-                className="border-t border-[#2d5035] hover:bg-[#2a4830] cursor-pointer transition-colors"
-              >
-                <td className="px-4 py-3.5">
-                  <span
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                      i === 0
-                        ? "bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40"
-                        : i === 1
-                        ? "bg-[#9ab8a0]/20 text-[#9ab8a0] border border-[#9ab8a0]/40"
-                        : i === 2
-                        ? "bg-amber-900/40 text-amber-400 border border-amber-700/40"
-                        : "text-[#6a8870]"
-                    }`}
-                  >
-                    {i + 1}
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 whitespace-nowrap">
-                  <span className="font-medium text-white">{entry.display_name}</span>
-                  {i === 0 && (
-                    <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
-                  )}
-                  <div className="mt-1.5 sm:hidden">
-                    <ScorePips rounds={entry.rounds} small />
-                  </div>
-                </td>
-                <td className="px-3 py-3.5 text-right whitespace-nowrap">
-                  <span className={`text-lg font-bold tabular-nums ${netToParColor(entry.cumulative_net_to_par)}`}>
-                    {formatNetToPar(entry.cumulative_net_to_par)}
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 hidden sm:table-cell">
-                  <div className="flex justify-center">
-                    <ScorePips rounds={entry.rounds} />
-                  </div>
-                </td>
-                {isAdmin && (
-                  <td className="px-4 py-3.5 text-center">
-                    <PayToggle
-                      seasonId={seasonId}
-                      playerId={entry.player_id}
-                      initialPaid={payments[entry.player_id] ?? false}
-                    />
-                  </td>
-                )}
-                <td className="px-3 py-3.5 text-center text-[#6a8870] text-xs">
-                  {isExpanded ? "▲" : "▼"}
-                </td>
-              </tr>
+    <div>
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#2d5035]">
+        <span className="text-xs text-[#9ab8a0] uppercase tracking-wide font-semibold">Scenario</span>
+        <select
+          value={mode}
+          onChange={(e) => setMode(e.target.value as Mode)}
+          className="bg-[#1a3520] text-white text-sm border border-[#2d5035] rounded px-2 py-1.5 focus:outline-none focus:border-[#4a7a50] cursor-pointer"
+        >
+          <option value="top4">Top 4 scores</option>
+          <option value="drop1">Drop 1 score</option>
+          <option value="drop2">Drop 2 scores</option>
+        </select>
+      </div>
 
-              {isExpanded && (
-                <tr className="border-t border-[#2d5035]">
-                  <td colSpan={isAdmin ? 6 : 5} className="bg-[#1a3520] px-4 py-3">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="text-[#6a8870] text-xs uppercase tracking-wide">
-                          <th className="text-left pb-2 font-medium">Date</th>
-                          <th className="text-left pb-2 font-medium hidden sm:table-cell">Course</th>
-                          <th className="text-right pb-2 font-medium">Gross</th>
-                          <th className="text-right pb-2 font-medium">Net</th>
-                          <th className="text-right pb-2 font-medium">Net to Par</th>
-                          <th className="w-5" />
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#2d5035]/50">
-                        {entry.rounds.map((r, j) => (
-                          <tr key={j} className={r.counts ? "" : "opacity-40"}>
-                            <td className="py-2 text-[#9ab8a0]">
-                              {formatDate(r.date)}
-                              <span className="block text-xs text-[#6a8870] sm:hidden">{r.course}</span>
-                            </td>
-                            <td className="py-2 text-[#9ab8a0] hidden sm:table-cell">{r.course}</td>
-                            <td className="py-2 text-right text-[#9ab8a0]">{r.gross}</td>
-                            <td className="py-2 text-right text-white font-medium">{r.net ?? "—"}</td>
-                            <td className={`py-2 text-right font-semibold ${netToParColor(r.netToPar)}`}>
-                              {formatNetToPar(r.netToPar)}
-                            </td>
-                            <td className="py-2 text-center text-[#d4af37] text-xs">
-                              {r.counts ? "★" : ""}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+      <table className="w-full">
+        <thead className="bg-[#1a3520] border-b border-[#2d5035]">
+          <tr>
+            <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-10">
+              #
+            </th>
+            <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide whitespace-nowrap">
+              Player
+            </th>
+            <th className="text-right px-3 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-20 whitespace-nowrap">
+              Net to Par
+            </th>
+            <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
+              Rounds
+            </th>
+            {isAdmin && (
+              <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-16">
+                Buy-In
+              </th>
+            )}
+            <th className="w-8" />
+          </tr>
+        </thead>
+        <tbody>
+          {displayed.map((entry, i) => {
+            const isExpanded = expandedId === entry.player_id;
+            return (
+              <Fragment key={entry.player_id}>
+                <tr
+                  onClick={() => setExpandedId(isExpanded ? null : entry.player_id)}
+                  className="border-t border-[#2d5035] hover:bg-[#2a4830] cursor-pointer transition-colors"
+                >
+                  <td className="px-4 py-3.5">
+                    <span
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                        i === 0
+                          ? "bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40"
+                          : i === 1
+                          ? "bg-[#9ab8a0]/20 text-[#9ab8a0] border border-[#9ab8a0]/40"
+                          : i === 2
+                          ? "bg-amber-900/40 text-amber-400 border border-amber-700/40"
+                          : "text-[#6a8870]"
+                      }`}
+                    >
+                      {i + 1}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3.5 whitespace-nowrap">
+                    <span className="font-medium text-white">{entry.display_name}</span>
+                    {i === 0 && (
+                      <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
+                    )}
+                    <div className="mt-1.5 sm:hidden">
+                      <ScorePips rounds={entry.rounds} countedN={countedN} small />
+                    </div>
+                  </td>
+                  <td className="px-3 py-3.5 text-right whitespace-nowrap">
+                    <span className={`text-lg font-bold tabular-nums ${netToParColor(entry.cumulative_net_to_par)}`}>
+                      {formatNetToPar(entry.cumulative_net_to_par)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3.5 hidden sm:table-cell">
+                    <div className="flex justify-center">
+                      <ScorePips rounds={entry.rounds} countedN={countedN} />
+                    </div>
+                  </td>
+                  {isAdmin && (
+                    <td className="px-4 py-3.5 text-center">
+                      <PayToggle
+                        seasonId={seasonId}
+                        playerId={entry.player_id}
+                        initialPaid={payments[entry.player_id] ?? false}
+                      />
+                    </td>
+                  )}
+                  <td className="px-3 py-3.5 text-center text-[#6a8870] text-xs">
+                    {isExpanded ? "▲" : "▼"}
                   </td>
                 </tr>
-              )}
-            </Fragment>
-          );
-        })}
-      </tbody>
-    </table>
+
+                {isExpanded && (
+                  <tr className="border-t border-[#2d5035]">
+                    <td colSpan={isAdmin ? 6 : 5} className="bg-[#1a3520] px-4 py-3">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="text-[#6a8870] text-xs uppercase tracking-wide">
+                            <th className="text-left pb-2 font-medium">Date</th>
+                            <th className="text-left pb-2 font-medium hidden sm:table-cell">Course</th>
+                            <th className="text-right pb-2 font-medium">Gross</th>
+                            <th className="text-right pb-2 font-medium">Net</th>
+                            <th className="text-right pb-2 font-medium">Net to Par</th>
+                            <th className="w-5" />
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#2d5035]/50">
+                          {entry.rounds.map((r, j) => (
+                            <tr key={j} className={r.counts ? "" : "opacity-40"}>
+                              <td className="py-2 text-[#9ab8a0]">
+                                {formatDate(r.date)}
+                                <span className="block text-xs text-[#6a8870] sm:hidden">{r.course}</span>
+                              </td>
+                              <td className="py-2 text-[#9ab8a0] hidden sm:table-cell">{r.course}</td>
+                              <td className="py-2 text-right text-[#9ab8a0]">{r.gross}</td>
+                              <td className="py-2 text-right text-white font-medium">{r.net ?? "—"}</td>
+                              <td className={`py-2 text-right font-semibold ${netToParColor(r.netToPar)}`}>
+                                {formatNetToPar(r.netToPar)}
+                              </td>
+                              <td className="py-2 text-center text-[#d4af37] text-xs">
+                                {r.counts ? "★" : ""}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }

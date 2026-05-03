@@ -340,13 +340,13 @@ function aggregateStandings(scorecards: ScorecardRow[], roundParMap: Map<string,
 
   return Array.from(map.values())
     .map((p) => {
-      const best5 = [...p.net_to_pars].sort((a, b) => a - b).slice(0, 5);
+      const best4 = [...p.net_to_pars].sort((a, b) => a - b).slice(0, 4);
       return {
         player_id: p.player_id,
         display_name: p.display_name,
-        rounds_counted: best5.length,
+        rounds_counted: best4.length,
         rounds_played: p.net_to_pars.length,
-        cumulative_net_to_par: best5.reduce((a, b) => a + b, 0),
+        cumulative_net_to_par: best4.reduce((a, b) => a + b, 0),
       };
     })
     .sort((a, b) => {

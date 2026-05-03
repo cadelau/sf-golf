@@ -60,7 +60,7 @@ export default async function LeaderboardPage() {
       </div>
 
       <p className="text-xs text-[#6a8870] text-center">
-        Best 5 net scores to par · Sorted best to worst · Lower aggregate is better · Click a player to expand
+        Best 4 net scores to par · Sorted best to worst · Lower aggregate is better · Click a player to expand
       </p>
     </div>
   );
@@ -129,20 +129,20 @@ function aggregateStandings(scorecards: ScorecardRow[]): StandingEntry[] {
       // Tag each round with its original index, sort by netToPar, mark best 5
       const indexed = p.rawRounds.map((r, i) => ({ ...r, idx: i }));
       const sorted = [...indexed].sort((a, b) => a.netToPar - b.netToPar);
-      const best5Indices = new Set(sorted.slice(0, 5).map((r) => r.idx));
-      const best5 = sorted.slice(0, 5);
-      const cumulative_net_to_par = best5.reduce((a, b) => a + b.netToPar, 0);
+      const best4Indices = new Set(sorted.slice(0, 4).map((r) => r.idx));
+      const best4 = sorted.slice(0, 4);
+      const cumulative_net_to_par = best4.reduce((a, b) => a + b.netToPar, 0);
 
       const rounds: RoundDetail[] = indexed
         .slice()
         .sort((a, b) => a.date.localeCompare(b.date))
-        .map(({ idx, ...r }) => ({ ...r, counts: best5Indices.has(idx) }));
+        .map(({ idx, ...r }) => ({ ...r, counts: best4Indices.has(idx) }));
 
       return {
         player_id: p.player_id,
         display_name: p.display_name,
         rounds_played: p.rawRounds.length,
-        rounds_counted: best5.length,
+        rounds_counted: best4.length,
         cumulative_net_to_par,
         best_round: sorted[0]?.netToPar ?? 0,
         rounds,
