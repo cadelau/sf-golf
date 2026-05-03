@@ -159,7 +159,7 @@ export default function StandingsTable({
                 Buy-In
               </th>
             )}
-            <th className="w-8" />
+            <th className="w-8 hidden sm:table-cell" />
           </tr>
         </thead>
         <tbody>
@@ -195,9 +195,12 @@ export default function StandingsTable({
                       <ScorePips rounds={entry.rounds} countedN={countedN} small />
                     </div>
                   </td>
-                  <td className="pl-3 pr-6 py-3.5 text-right whitespace-nowrap">
+                  <td className="pl-3 pr-4 py-3.5 text-right whitespace-nowrap">
                     <span className={`text-lg font-bold tabular-nums ${netToParColor(entry.cumulative_net_to_par)}`}>
                       {formatNetToPar(entry.cumulative_net_to_par)}
+                    </span>
+                    <span className="ml-2 text-[#6a8870] text-xs sm:hidden">
+                      {isExpanded ? "▲" : "▼"}
                     </span>
                   </td>
                   <td className="px-4 py-3.5 hidden sm:table-cell">
@@ -214,15 +217,16 @@ export default function StandingsTable({
                       />
                     </td>
                   )}
-                  <td className="pl-3 pr-4 py-3.5 text-center text-[#6a8870] text-xs">
+                  <td className="pl-3 pr-4 py-3.5 text-center text-[#6a8870] text-xs hidden sm:table-cell">
                     {isExpanded ? "▲" : "▼"}
                   </td>
                 </tr>
 
                 {isExpanded && (
                   <tr className="border-t border-[#2d5035]">
-                    <td colSpan={5} className="bg-[#1a3520] px-4 py-3">
-                      <table className="w-full text-sm">
+                    <td colSpan={5} className="bg-[#1a3520] py-3">
+                      <div className="overflow-x-auto px-4">
+                      <table className="text-sm w-full min-w-[340px]">
                         <thead>
                           <tr className="text-[#6a8870] text-xs uppercase tracking-wide">
                             <th className="text-left pb-2 font-medium">Date</th>
@@ -253,6 +257,7 @@ export default function StandingsTable({
                           ))}
                         </tbody>
                       </table>
+                      </div>
                     </td>
                   </tr>
                 )}
