@@ -62,14 +62,14 @@ function ScorePips({ rounds, countedN, small = false }: {
   const qualified = sorted.length >= countedN;
   const size = small ? "w-8 h-8" : "w-7 h-7";
 
-  const slots = Array.from({ length: 10 }, (_, i) => {
+  const slots = Array.from({ length: small ? 5 : 10 }, (_, i) => {
     const r = sorted[i];
     if (!r) return null;
     return { ...r, counts: i < countedN };
   });
 
   return (
-    <div className={small ? "grid grid-cols-5 gap-1" : "flex gap-1"}>
+    <div className="flex gap-1">
       {slots.map((r, i) => {
         if (!r) {
           return (
