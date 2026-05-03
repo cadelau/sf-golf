@@ -139,19 +139,19 @@ export default function StandingsTable({
         </select>
       </div>
 
-      <table className="w-full">
+      <table className="w-full table-fixed">
         <thead className="bg-[#1a3520] border-b border-[#2d5035]">
           <tr>
             <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-10">
               #
             </th>
-            <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide whitespace-nowrap">
+            <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide">
               Player
             </th>
-            <th className="text-right pl-3 pr-6 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-20 whitespace-nowrap">
+            <th className="text-right pr-4 pl-2 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-28">
               Net to Par
             </th>
-            <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide hidden sm:table-cell">
+            <th className="text-center px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-64 hidden sm:table-cell">
               Rounds
             </th>
             {isAdmin && (
@@ -159,7 +159,7 @@ export default function StandingsTable({
                 Buy-In
               </th>
             )}
-            <th className="w-8 hidden sm:table-cell" />
+            <th className="w-10 hidden sm:table-cell" />
           </tr>
         </thead>
         <tbody>
@@ -186,8 +186,8 @@ export default function StandingsTable({
                       {i + 1}
                     </span>
                   </td>
-                  <td className="px-4 py-3.5">
-                    <span className="text-base font-semibold text-white whitespace-nowrap">{entry.display_name}</span>
+                  <td className="px-4 py-3.5 overflow-hidden">
+                    <span className="text-base font-semibold text-white">{entry.display_name}</span>
                     {i === 0 && (
                       <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
                     )}
@@ -195,7 +195,7 @@ export default function StandingsTable({
                       <ScorePips rounds={entry.rounds} countedN={countedN} small />
                     </div>
                   </td>
-                  <td className="pl-3 pr-4 py-3.5 text-right whitespace-nowrap">
+                  <td className="pl-2 pr-4 py-3.5 text-right">
                     <span className={`text-lg font-bold tabular-nums ${netToParColor(entry.cumulative_net_to_par)}`}>
                       {formatNetToPar(entry.cumulative_net_to_par)}
                     </span>
