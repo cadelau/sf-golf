@@ -139,7 +139,7 @@ export default function StandingsTable({
         </select>
       </div>
 
-      <table className="w-full table-fixed">
+      <table className="w-full">
         <thead className="bg-[#1a3520] border-b border-[#2d5035]">
           <tr>
             <th className="text-left px-4 py-3 text-xs font-semibold text-[#9ab8a0] uppercase tracking-wide w-10">
