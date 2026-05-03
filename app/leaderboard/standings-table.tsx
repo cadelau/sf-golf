@@ -69,7 +69,7 @@ function ScorePips({ rounds, countedN, small = false }: {
   });
 
   return (
-    <div className="flex gap-1 flex-wrap">
+    <div className={small ? "grid grid-cols-5 gap-1" : "flex gap-1"}>
       {slots.map((r, i) => {
         if (!r) {
           return (
@@ -186,8 +186,8 @@ export default function StandingsTable({
                       {i + 1}
                     </span>
                   </td>
-                  <td className="px-4 py-3.5 whitespace-nowrap">
-                    <span className="font-medium text-white">{entry.display_name}</span>
+                  <td className="px-4 py-3.5">
+                    <span className="font-medium text-white whitespace-nowrap">{entry.display_name}</span>
                     {i === 0 && (
                       <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
                     )}
