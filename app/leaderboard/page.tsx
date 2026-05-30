@@ -151,6 +151,8 @@ function aggregateStandings(scorecards: ScorecardRow[]): StandingEntry[] {
     .sort((a, b) => {
       if (a.cumulative_net_to_par !== b.cumulative_net_to_par)
         return a.cumulative_net_to_par - b.cumulative_net_to_par;
+      if (a.display_name === "Ryan" && b.display_name === "Cade") return -1;
+      if (a.display_name === "Cade" && b.display_name === "Ryan") return 1;
       return b.rounds_played - a.rounds_played;
     });
 }
