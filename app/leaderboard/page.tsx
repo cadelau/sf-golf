@@ -45,9 +45,18 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Season Standings</h1>
-        <p className="text-[#9ab8a0] text-sm mt-1">{season?.name}</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Season Standings</h1>
+          <p className="text-[#9ab8a0] text-sm mt-1">{season?.name}</p>
+        </div>
+        <a
+          href="/leaderboard/print"
+          target="_blank"
+          className="text-sm text-[#9ab8a0] border border-[#2d5035] rounded px-3 py-1.5 hover:bg-[#2a4830] transition-colors"
+        >
+          Print
+        </a>
       </div>
 
       <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] overflow-hidden">
