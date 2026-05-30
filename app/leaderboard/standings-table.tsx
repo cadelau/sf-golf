@@ -47,6 +47,9 @@ function recomputeStandings(standings: StandingEntry[], mode: Mode): StandingEnt
       return { ...entry, cumulative_net_to_par };
     })
     .sort((a, b) => {
+      const aQ = a.rounds.length >= n;
+      const bQ = b.rounds.length >= n;
+      if (aQ !== bQ) return aQ ? -1 : 1;
       if (a.cumulative_net_to_par !== b.cumulative_net_to_par)
         return a.cumulative_net_to_par - b.cumulative_net_to_par;
       if (a.display_name === "Ryan" && b.display_name === "Cade") return -1;
@@ -167,16 +170,19 @@ export default function StandingsTable({
         <tbody>
           {displayed.map((entry, i) => {
             const isExpanded = expandedId === entry.player_id;
+            const qualified = entry.rounds.length >= countedN;
             return (
               <Fragment key={entry.player_id}>
                 <tr
                   onClick={() => setExpandedId(isExpanded ? null : entry.player_id)}
-                  className="border-t border-[#2d5035] hover:bg-[#2a4830] cursor-pointer transition-colors"
+                  className={`border-t border-[#2d5035] hover:bg-[#2a4830] cursor-pointer transition-colors ${!qualified ? "opacity-50" : ""}`}
                 >
                   <td className="px-4 py-3.5">
                     <span
                       className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                        i === 0
+                        !qualified
+                          ? "text-[#4a5a4c]"
+                          : i === 0
                           ? "bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40"
                           : i === 1
                           ? "bg-[#9ab8a0]/20 text-[#9ab8a0] border border-[#9ab8a0]/40"
@@ -190,7 +196,7 @@ export default function StandingsTable({
                   </td>
                   <td className="px-4 py-3.5 overflow-hidden">
                     <span className="text-base font-semibold text-white whitespace-nowrap">{entry.display_name}</span>
-                    {i === 0 && (
+                    {i === 0 && qualified && (
                       <span className="ml-2 text-xs text-[#d4af37] font-medium">Leader</span>
                     )}
                     <div className="mt-1.5 sm:hidden">

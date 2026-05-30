@@ -149,6 +149,9 @@ function aggregateStandings(scorecards: ScorecardRow[]): StandingEntry[] {
       } satisfies StandingEntry;
     })
     .sort((a, b) => {
+      const aQ = a.rounds_counted >= 4;
+      const bQ = b.rounds_counted >= 4;
+      if (aQ !== bQ) return aQ ? -1 : 1;
       if (a.cumulative_net_to_par !== b.cumulative_net_to_par)
         return a.cumulative_net_to_par - b.cumulative_net_to_par;
       if (a.display_name === "Ryan" && b.display_name === "Cade") return -1;
