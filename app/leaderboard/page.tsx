@@ -1,17 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
 import StandingsTable, { type StandingEntry, type RoundDetail } from "./standings-table";
+import SeasonSelect from "@/components/season-select";
 
-export default async function LeaderboardPage() {
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ season?: string }>;
+}) {
+  const { season: seasonParam } = await searchParams;
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: season }, { data: profile }] = await Promise.all([
-    supabase.from("seasons").select("*").eq("is_active", true).single(),
+  const [{ data: seasons }, { data: profile }] = await Promise.all([
+    supabase.from("seasons").select("*").order("year", { ascending: false }).order("created_at", { ascending: false }),
     user
       ? supabase.from("profiles").select("is_admin").eq("id", user.id).single()
       : Promise.resolve({ data: null }),
   ]);
+
+  const season = seasonParam
+    ? seasons?.find((s) => s.id === seasonParam) ?? null
+    : seasons?.find((s) => s.is_active) ?? null;
 
   const isAdmin = profile?.is_admin ?? false;
 
@@ -45,18 +55,28 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-white">Season Standings</h1>
-          <p className="text-[#9ab8a0] text-sm mt-1">{season?.name}</p>
+          <p className="text-[#9ab8a0] text-sm mt-1 flex items-center gap-2">
+            {season?.name}
+            {season && !season.is_active && (
+              <span className="text-xs bg-[#1a3520] text-[#9ab8a0] border border-[#2d5035] rounded-full px-2 py-0.5 font-medium">
+                Archived
+              </span>
+            )}
+          </p>
         </div>
-        <a
-          href="/leaderboard/print"
-          target="_blank"
-          className="text-sm text-[#9ab8a0] border border-[#2d5035] rounded px-3 py-1.5 hover:bg-[#2a4830] transition-colors"
-        >
-          Print
-        </a>
+        <div className="flex items-center gap-3">
+          <SeasonSelect seasons={seasons ?? []} selectedId={season?.id ?? ""} />
+          <a
+            href={`/leaderboard/print${season?.id ? `?season=${season.id}` : ""}`}
+            target="_blank"
+            className="text-sm text-[#9ab8a0] border border-[#2d5035] rounded px-3 py-1.5 hover:bg-[#2a4830] transition-colors"
+          >
+            Print
+          </a>
+        </div>
       </div>
 
       <div className="bg-[#243d2a] rounded-xl border border-[#2d5035] overflow-hidden">

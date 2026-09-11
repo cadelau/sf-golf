@@ -2,18 +2,28 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { formatDate, formatTime } from "@/lib/utils";
 import RsvpButton from "@/components/rsvp-button";
+import SeasonSelect from "@/components/season-select";
 
-export default async function SchedulePage() {
+export default async function SchedulePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ season?: string }>;
+}) {
+  const { season: seasonParam } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: season } = await supabase
+  const { data: seasons } = await supabase
     .from("seasons")
     .select("*")
-    .eq("is_active", true)
-    .single();
+    .order("year", { ascending: false })
+    .order("created_at", { ascending: false });
+
+  const season = seasonParam
+    ? seasons?.find((s) => s.id === seasonParam) ?? null
+    : seasons?.find((s) => s.is_active) ?? null;
 
   const { data: rounds } = await supabase
     .from("rounds")
@@ -47,47 +57,60 @@ export default async function SchedulePage() {
   const { data: currentProfile } = user
     ? await supabase.from("profiles").select("viewer_only").eq("id", user.id).single()
     : { data: null };
-  const canRsvp = user !== null && !(currentProfile?.viewer_only ?? true);
+  const canRsvp = (season?.is_active ?? false) && user !== null && !(currentProfile?.viewer_only ?? true);
 
   const today = new Date().toISOString().split("T")[0];
-  const upcoming = rounds?.filter((r) => r.date >= today) ?? [];
-  const past = rounds?.filter((r) => r.date < today) ?? [];
+  const isActiveSeason = season?.is_active ?? false;
+  const upcoming = isActiveSeason ? rounds?.filter((r) => r.date >= today) ?? [] : [];
+  const past = isActiveSeason ? rounds?.filter((r) => r.date < today) ?? [] : rounds ?? [];
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <h1 className="text-2xl font-bold text-white">Schedule</h1>
-        <span className="text-sm text-[#9ab8a0]">{season?.name}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-[#9ab8a0] flex items-center gap-2">
+            {season?.name}
+            {season && !season.is_active && (
+              <span className="text-xs bg-[#1a3520] text-[#9ab8a0] border border-[#2d5035] rounded-full px-2 py-0.5 font-medium">
+                Archived
+              </span>
+            )}
+          </span>
+          <SeasonSelect seasons={seasons ?? []} selectedId={season?.id ?? ""} />
+        </div>
       </div>
 
       {/* Upcoming */}
-      <section>
-        <h2 className="font-semibold text-[#9ab8a0] text-xs uppercase tracking-wider mb-3">
-          Upcoming Rounds
-        </h2>
-        {upcoming.length === 0 ? (
-          <p className="text-[#6a8870] text-sm">No upcoming rounds scheduled.</p>
-        ) : (
-          <div className="space-y-3">
-            {upcoming.map((round) => {
-              const rsvp = myRsvpMap.get(round.id);
-              const confirmed = countMap.get(round.id) ?? 0;
-              return (
-                <RoundCard
-                  key={round.id}
-                  round={round}
-                  weekNumber={weekNumberMap.get(round.id) ?? 0}
-                  rsvpStatus={rsvp ?? null}
-                  confirmedCount={confirmed}
-                  isPast={false}
-                  userId={user?.id ?? null}
-                  canRsvp={canRsvp}
-                />
-              );
-            })}
-          </div>
-        )}
-      </section>
+      {isActiveSeason && (
+        <section>
+          <h2 className="font-semibold text-[#9ab8a0] text-xs uppercase tracking-wider mb-3">
+            Upcoming Rounds
+          </h2>
+          {upcoming.length === 0 ? (
+            <p className="text-[#6a8870] text-sm">No upcoming rounds scheduled.</p>
+          ) : (
+            <div className="space-y-3">
+              {upcoming.map((round) => {
+                const rsvp = myRsvpMap.get(round.id);
+                const confirmed = countMap.get(round.id) ?? 0;
+                return (
+                  <RoundCard
+                    key={round.id}
+                    round={round}
+                    weekNumber={weekNumberMap.get(round.id) ?? 0}
+                    rsvpStatus={rsvp ?? null}
+                    confirmedCount={confirmed}
+                    isPast={false}
+                    userId={user?.id ?? null}
+                    canRsvp={canRsvp}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Past */}
       {past.length > 0 && (

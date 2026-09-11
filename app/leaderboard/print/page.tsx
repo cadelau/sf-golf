@@ -2,10 +2,17 @@ import { createClient } from "@/lib/supabase/server";
 import type { StandingEntry, RoundDetail } from "../standings-table";
 import PrintButton from "./print-button";
 
-export default async function PrintStandingsPage() {
+export default async function PrintStandingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ season?: string }>;
+}) {
+  const { season: seasonParam } = await searchParams;
   const supabase = await createClient();
 
-  const { data: season } = await supabase.from("seasons").select("*").eq("is_active", true).single();
+  const { data: season } = seasonParam
+    ? await supabase.from("seasons").select("*").eq("id", seasonParam).single()
+    : await supabase.from("seasons").select("*").eq("is_active", true).single();
 
   const { data: roundRows } = season
     ? await supabase.from("rounds").select("id").eq("season_id", season.id)
