@@ -38,7 +38,7 @@ export default function TeeTimeAssigner({
 }: {
   roundId: string;
   confirmed: Player[];
-  teeStartTime: string;
+  teeStartTime: string | null;
   teeIntervalMinutes: number;
   maxPlayers: number;
 }) {
@@ -56,6 +56,14 @@ export default function TeeTimeAssigner({
   );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  if (!teeStartTime) {
+    return (
+      <p className="text-sm text-[#6a8870] italic">
+        Set a first tee time in Round Details above before assigning tee times.
+      </p>
+    );
+  }
 
   // Generate available tee times
   const numGroups = Math.ceil(maxPlayers / 4);
